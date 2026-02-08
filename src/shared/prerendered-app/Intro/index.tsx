@@ -17,7 +17,7 @@ import smallSectionAsset from 'url:./imgs/info-content/small.svg';
 import simpleSectionAsset from 'url:./imgs/info-content/simple.svg';
 import secureSectionAsset from 'url:./imgs/info-content/secure.svg';
 import logoIcon from 'url:./imgs/demos/icon-demo-logo.png';
-import logoWithText from 'url:./imgs/pixkee_logo.png';
+import logoWithText from 'url:./imgs/pixkee_logo_rect.png';
 import * as style from './style.css';
 import 'shared/custom-els/snack-bar';
 
