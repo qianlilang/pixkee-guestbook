@@ -51,9 +51,11 @@
 }
 
 .header-logo {
-  height: 48px;
+  height: 140px;
   width: auto;
-  object-fit: contain;
+  margin-top: -46px;
+  margin-bottom: -46px;
+  object-fit: cover;
 }
 
 .header-nav {
