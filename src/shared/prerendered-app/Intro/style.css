@@ -51,11 +51,12 @@
 }
 
 .header-logo {
-  height: 140px;
+  height: 50px;
   width: auto;
-  margin-top: -46px;
-  margin-bottom: -46px;
-  object-fit: cover;
+  object-fit: contain;
+  /* Remove negative margins as we want to contain the logo within the header naturally */
+  margin: 0;
+  display: block;
 }
 
 .header-nav {
