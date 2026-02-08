@@ -50,13 +50,20 @@
   align-items: center;
 }
 
-.header-logo {
-  height: 50px;
+.logoContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.logoIcon {
+  height: 40px;
   width: auto;
   object-fit: contain;
-  /* Remove negative margins as we want to contain the logo within the header naturally */
-  margin: 0;
-  display: block;
+}
+
+.logoText {
+  display: none;
 }
 
 .header-nav {

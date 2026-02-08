@@ -7,6 +7,7 @@ import { h, Component } from 'preact';
 import { linkRef } from 'shared/prerendered-app/util';
 import '../../custom-els/loading-spinner';
 import logo from 'url:./imgs/logo.svg';
+import pixkeeLogo from 'url:./imgs/pixkee_logo_composite.png';
 import largePhoto from 'url:./imgs/demos/demo-large-photo.jpg';
 import artwork from 'url:./imgs/demos/demo-artwork.jpg';
 import deviceScreen from 'url:./imgs/demos/demo-device-screen.png';
@@ -17,7 +18,7 @@ import smallSectionAsset from 'url:./imgs/info-content/small.svg';
 import simpleSectionAsset from 'url:./imgs/info-content/simple.svg';
 import secureSectionAsset from 'url:./imgs/info-content/secure.svg';
 import logoIcon from 'url:./imgs/demos/icon-demo-logo.png';
-import logoWithText from 'url:./imgs/pixkee_logo_rect.png';
+import logoWithText from 'url:./imgs/pixkee_logo_composite.png';
 import * as style from './style.css';
 import 'shared/custom-els/snack-bar';
 
@@ -228,7 +229,10 @@ export default class Intro extends Component<Props, State> {
         {/* Header */}
         <header class={style.header}>
           <div class={style.headerInner}>
-            <img class={style.headerLogo} src={logoWithText} alt="Pixkee" height="40" />
+            <div class={style.logoContainer}>
+              <img class={style.logoIcon} src={pixkeeLogo} alt="" />
+              <span class={style.logoText}>Pixkee</span>
+            </div>
             <nav class={style.headerNav}>
               <button class={style.navLink} onClick={this.props.onFeedbackClick}>
                 Guestbook
