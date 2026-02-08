@@ -1,0 +1,12 @@
+.panel-heading {
+  display: block;
+}
+
+.panel-content {
+  height: 0px;
+  overflow: auto;
+}
+
+.panel-content[aria-expanded='true'] {
+  height: auto;
+}

@@ -1,0 +1,32 @@
+html {
+  /* 6.seowhy.com inspired color scheme */
+  --pink: #ff3385;
+  --hot-pink: #ff0066;
+  --white: #fff;
+  --black: #000;
+  --off-black: #001A33;
+  --blue: #0080FF;
+  --dim-blue: #0066CC;
+  --deep-blue: #0080FF;
+  --light-blue: #E6F3FF;
+  --less-light-gray: #bcbcbc;
+  --medium-light-gray: #d1d1d1;
+  --light-gray: #F5F7FA;
+  --dark-gray: #33485C;
+  --dim-text: #33485C;
+  --dark-text: #001A33;
+
+  /* Old stuff: */
+  --button-fg: #0080FF;
+}
+
+@media (dynamic-range: high) {
+  @supports (color: oklch(0% 0 0)) {
+    html {
+      --pink: oklch(75% 0.3 3);
+      --hot-pink: oklch(65% 0.3 3);
+      --blue: oklch(75% 0.2 240);
+      --deep-blue: oklch(60% 0.2 240);
+    }
+  }
+}
