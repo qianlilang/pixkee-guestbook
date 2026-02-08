@@ -7,7 +7,7 @@ import { abortable } from '../util';
 /** How long the worker should be idle before terminating. */
 const workerTimeout = 10_000;
 
-interface WorkerBridge extends BridgeMethods {}
+interface WorkerBridge extends BridgeMethods { }
 
 class WorkerBridge {
   protected _queue = Promise.resolve() as Promise<unknown>;
@@ -39,7 +39,7 @@ for (const methodName of methodNames) {
   ) {
     this._queue = this._queue
       // Ignore any errors in the queue
-      .catch(() => {})
+      .catch(() => { })
       .then(async () => {
         if (signal.aborted) throw new DOMException('AbortError', 'AbortError');
 
@@ -60,7 +60,7 @@ for (const methodName of methodNames) {
           // Start a timer to clear up the worker.
           this._workerTimeout = setTimeout(() => {
             this._terminateWorker();
-          }, workerTimeout);
+          }, workerTimeout) as any;
         });
       });
 

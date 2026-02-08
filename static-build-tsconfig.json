@@ -13,6 +13,10 @@
   },
   "include": [
     "src/shared/**/*",
-    "src/static-build/**/*"
+    "src/static-build/**/*",
+    "src/client/**/*",
+    "src/features/**/*",
+    "src/worker-shared/**/*",
+    "src/features-worker/**/*"
   ]
 }

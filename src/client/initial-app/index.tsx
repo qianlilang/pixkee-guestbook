@@ -27,7 +27,7 @@ main();
   // Determine the current display mode.
   const displayMode =
     navigator.standalone ||
-    window.matchMedia('(display-mode: standalone)').matches
+      window.matchMedia('(display-mode: standalone)').matches
       ? 'standalone'
       : 'browser';
 
@@ -36,7 +36,7 @@ main();
   ga('create', 'UA-128752250-1', 'auto');
   ga('set', 'transport', 'beacon');
   ga('set', 'dimension1', displayMode);
-  ga('send', 'pageview', '/index.html', { title: 'Squoosh' });
+  ga('send', 'pageview', '/index.html', { title: 'Pixkee: Fast & Light' });
   // Load the GA script without keeping the browser spinner going.
   addEventListener('load', () => {
     const script = document.createElement('script');

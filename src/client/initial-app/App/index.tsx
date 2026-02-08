@@ -18,6 +18,7 @@ const ROUTE_FEEDBACK = '/feedback';
 const compressPromise = import('client/lazy-app/Compress');
 const swBridgePromise = import('client/lazy-app/sw-bridge');
 const feedbackPromise = import('client/lazy-app/Feedback');
+const batchPromise = import('client/lazy-app/Batch');
 
 function back() {
   window.history.back();
@@ -28,9 +29,12 @@ interface Props { }
 interface State {
   awaitingShareTarget: boolean;
   file?: File;
+  files?: File[];
   isEditorOpen: Boolean;
+
   isFeedbackOpen: Boolean;
   Compress?: typeof import('client/lazy-app/Compress').default;
+  Batch?: typeof import('client/lazy-app/Batch').default;
   Feedback?: typeof import('client/lazy-app/Feedback').default;
 }
 
@@ -40,9 +44,12 @@ export default class App extends Component<Props, State> {
       'share-target',
     ),
     isEditorOpen: false,
+
     isFeedbackOpen: false,
     file: undefined,
+    files: undefined,
     Compress: undefined,
+    Batch: undefined,
     Feedback: undefined,
   };
 
@@ -73,7 +80,7 @@ export default class App extends Component<Props, State> {
     });
 
     // Since iOS 10, Apple tries to prevent disabling pinch-zoom. This is great in theory, but
-    // really breaks things on Squoosh, as you can easily end up zooming the UI when you mean to
+    // really breaks things on Pixkee, as you can easily end up zooming the UI when you mean to
     // zoom the image. Once you've done this, it's really difficult to undo. Anyway, this seems to
     // prevent it.
     document.body.addEventListener('gesturestart', (event: any) => {
@@ -85,14 +92,24 @@ export default class App extends Component<Props, State> {
 
   private onFileDrop = ({ files }: FileDropEvent) => {
     if (!files || files.length === 0) return;
-    const file = files[0];
-    this.openEditor();
-    this.setState({ file });
+    if (files.length === 1) {
+      const file = files[0];
+      this.openEditor();
+      this.setState({ file });
+    } else {
+      this.loadBatch();
+      this.setState({ files: Array.from(files) });
+    }
   };
 
-  private onIntroPickFile = (file: File) => {
-    this.openEditor();
-    this.setState({ file });
+  private onIntroPickFile = (files: File[] | File) => {
+    if (Array.isArray(files)) {
+      this.loadBatch();
+      this.setState({ files });
+    } else {
+      this.openEditor();
+      this.setState({ file: files });
+    }
   };
 
   private showSnack = (
@@ -106,7 +123,7 @@ export default class App extends Component<Props, State> {
   private onPopState = () => {
     this.setState({
       isEditorOpen: location.pathname === ROUTE_EDITOR,
-      isFeedbackOpen: location.pathname === ROUTE_FEEDBACK
+      isFeedbackOpen: location.pathname === ROUTE_FEEDBACK,
     });
     if (location.pathname === ROUTE_FEEDBACK) this.loadFeedback();
   };
@@ -131,7 +148,7 @@ export default class App extends Component<Props, State> {
 
   private loadFeedback = () => {
     if (this.state.Feedback) return;
-    feedbackPromise.then(module => {
+    feedbackPromise.then((module) => {
       this.setState({ Feedback: module.default });
     });
   };
@@ -140,9 +157,25 @@ export default class App extends Component<Props, State> {
     window.history.back();
   };
 
+  private loadBatch = () => {
+    if (this.state.Batch) return;
+    batchPromise.then((module) => {
+      this.setState({ Batch: module.default });
+    });
+  };
+
   render(
     { }: Props,
-    { file, isEditorOpen, isFeedbackOpen, Compress, Feedback, awaitingShareTarget }: State,
+    {
+      file,
+      files,
+      isEditorOpen,
+      isFeedbackOpen,
+      Compress,
+      Batch,
+      Feedback,
+      awaitingShareTarget,
+    }: State,
   ) {
     const showSpinner = awaitingShareTarget || (isEditorOpen && !Compress);
 
@@ -158,7 +191,13 @@ export default class App extends Component<Props, State> {
           ) : isFeedbackOpen ? (
             Feedback && <Feedback onBack={this.closeFeedback} />
           ) : (
-            <Intro onFile={this.onIntroPickFile} showSnack={this.showSnack} onFeedbackClick={this.openFeedback} />
+            <Intro
+              onFile={this.onIntroPickFile}
+              showSnack={this.showSnack}
+              onFeedbackClick={this.openFeedback}
+              files={files}
+              Batch={Batch}
+            />
           )}
           <snack-bar ref={linkRef(this, 'snackbar')} />
         </file-drop>

@@ -126,7 +126,10 @@ export default async function ({ watch }) {
             }),
             ...commonPlugins(),
             commonjs(),
-            resolve(),
+            resolve({
+              browser: true,
+              preferBuiltins: false,
+            }),
             replace({
               __PRERENDER__: false,
               __PRODUCTION__: isProduction,

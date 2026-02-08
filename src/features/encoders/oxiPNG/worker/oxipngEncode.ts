@@ -37,11 +37,17 @@ let wasmReady: ReturnType<typeof initMT | typeof initST>;
 export default async function encode(
   data: ImageData,
   options: EncodeOptions,
-): Promise<ArrayBuffer> {
+): Promise<ArrayBuffer | SharedArrayBuffer> {
   if (!wasmReady) {
-    wasmReady = checkThreadsSupport().then((hasThreads: boolean) =>
-      hasThreads ? initMT() : initST(),
-    );
+    wasmReady = checkThreadsSupport().then((hasThreads: boolean) => {
+      if (hasThreads) {
+        return initMT().catch((err) => {
+          console.warn('OxiPNG: MT init failed, falling back to ST', err);
+          return initST();
+        });
+      }
+      return initST();
+    });
   }
 
   const optimise = await wasmReady;

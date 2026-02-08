@@ -8,48 +8,48 @@ import { linkRef } from 'shared/prerendered-app/util';
 import '../../custom-els/loading-spinner';
 import logo from 'url:./imgs/logo.svg';
 import pixkeeLogo from 'url:./imgs/pixkee_logo_composite.png';
-import largePhoto from 'url:./imgs/demos/demo-large-photo.jpg';
-import artwork from 'url:./imgs/demos/demo-artwork.jpg';
-import deviceScreen from 'url:./imgs/demos/demo-device-screen.png';
-import largePhotoIcon from 'url:./imgs/demos/icon-demo-large-photo.jpg';
-import artworkIcon from 'url:./imgs/demos/icon-demo-artwork.jpg';
-import deviceScreenIcon from 'url:./imgs/demos/icon-demo-device-screen.jpg';
-import smallSectionAsset from 'url:./imgs/info-content/small.svg';
-import simpleSectionAsset from 'url:./imgs/info-content/simple.svg';
-import secureSectionAsset from 'url:./imgs/info-content/secure.svg';
-import logoIcon from 'url:./imgs/demos/icon-demo-logo.png';
-import logoWithText from 'url:./imgs/pixkee_logo_composite.png';
+import mountainDemo from 'url:./imgs/demos/demo-mountain.jpg';
+import smartphoneDemo from 'url:./imgs/demos/demo-smartphone.jpg';
+import beachDemo from 'url:./imgs/demos/demo-beach.jpg';
+import earbudsDemo from 'url:./imgs/demos/demo-earbuds.jpg';
+import mountainIcon from 'url:./imgs/demos/icon-demo-mountain.jpg';
+import smartphoneIcon from 'url:./imgs/demos/icon-demo-smartphone.jpg';
+import beachIcon from 'url:./imgs/demos/icon-demo-beach.jpg';
+import earbudsIcon from 'url:./imgs/demos/icon-demo-earbuds.jpg';
+import smallSectionAsset from 'url:./imgs/info-content/fast.png';
+import simpleSectionAsset from 'url:./imgs/info-content/light.png';
+import secureSectionAsset from 'url:./imgs/info-content/secure.png';
 import * as style from './style.css';
 import 'shared/custom-els/snack-bar';
 
 const demos = [
   {
-    description: 'Large photo',
-    size: '2.8MB',
-    filename: 'photo.jpg',
-    url: largePhoto,
-    iconUrl: largePhotoIcon,
+    description: 'Mountain landscape',
+    size: '1.2MB',
+    filename: 'mountain.jpg',
+    url: mountainDemo,
+    iconUrl: mountainIcon,
   },
   {
-    description: 'Artwork',
-    size: '2.9MB',
-    filename: 'art.jpg',
-    url: artwork,
-    iconUrl: artworkIcon,
+    description: 'Product photo',
+    size: '890KB',
+    filename: 'smartphone.jpg',
+    url: smartphoneDemo,
+    iconUrl: smartphoneIcon,
   },
   {
-    description: 'Device screen',
-    size: '1.6MB',
-    filename: 'pixel3.png',
-    url: deviceScreen,
-    iconUrl: deviceScreenIcon,
+    description: 'Beach sunset',
+    size: '1.5MB',
+    filename: 'beach.jpg',
+    url: beachDemo,
+    iconUrl: beachIcon,
   },
   {
-    description: 'SVG icon',
-    size: '13KB',
-    filename: 'squoosh.svg',
-    url: logo,
-    iconUrl: logoIcon,
+    description: 'Electronics',
+    size: '950KB',
+    filename: 'earbuds.jpg',
+    url: earbudsDemo,
+    iconUrl: earbudsIcon,
   },
 ] as const;
 
@@ -91,7 +91,6 @@ const formats = [
   { name: 'GIF', color: '#00BCD4' },
 ];
 
-const installButtonSource = 'introInstallButton-Blue';
 const supportsClipboardAPI =
   !__PRERENDER__ && navigator.clipboard && navigator.clipboard.read;
 
@@ -105,46 +104,156 @@ async function getImageClipboardItem(
 }
 
 interface Props {
-  onFile?: (file: File) => void;
+  onFile?: (file: File | File[]) => void;
   showSnack?: SnackBarElement['showSnackbar'];
   onFeedbackClick?: () => void;
+  files?: File[];
+  Batch?: typeof import('client/lazy-app/Batch').default;
 }
 interface State {
   fetchingDemoIndex?: number;
-  beforeInstallEvent?: BeforeInstallPromptEvent;
+  lang: 'en' | 'zh';
+  isLangMenuOpen: boolean;
 }
 
+const translations = {
+  en: {
+    heroTitle: 'Compress images',
+    heroHighlight: 'instantly',
+    heroSubtitle: 'The ultimate image optimizer. Reduce file sizes without losing quality.',
+    dropText: 'Drop image here',
+    browseText: 'or click to browse',
+    pasteText: 'or paste from clipboard',
+    sampleLabel: 'Or try a sample:',
+    featuresTitle: 'Why Choose Pixkee?',
+    howItWorksTitle: 'How It Works',
+    formatsTitle: 'Supported Formats',
+    footer: '© 2026 Pixkee',
+    steps: [
+      { title: 'Upload', description: 'Drop or select your image' },
+      { title: 'Adjust', description: 'Choose format and quality' },
+      { title: 'Download', description: 'Save your optimized image' },
+    ],
+    features: [
+      { title: 'Smart Compression', description: 'Advanced algorithms reduce file size while preserving quality.' },
+      { title: 'Multi-Format Support', description: 'Convert between JPEG, PNG, WebP, AVIF, and more.' },
+      { title: 'Privacy First', description: 'All processing happens locally. Your images never leave your device.' },
+      { title: 'Real-time Preview', description: 'Compare original and compressed images side by side.' },
+    ],
+    benefits: {
+      fast: { title: 'Fast', desc: 'Lightning-fast compression powered by WebAssembly. Process images in seconds, right in your browser.' },
+      light: { title: 'Light', desc: 'Drastically reduce file sizes without visible quality loss. Perfect for web, mobile apps, and email.' },
+      secure: { title: 'Secure', desc: 'Worried about privacy? Images never leave your device since Pixkee does all the work locally.' },
+    },
+    nav: {
+      guestbook: 'Guestbook',
+      product: 'Product',
+      pricing: 'Pricing',
+      login: 'Login',
+    }
+  },
+  zh: {
+    heroTitle: '图片压缩',
+    heroHighlight: '瞬间完成',
+    heroSubtitle: '极致的图片优化工具。在不损失画质的情况下大幅减小文件体积。',
+    dropText: '拖拽图片到这里',
+    browseText: '或点击上传',
+    pasteText: '或从剪贴板粘贴',
+    sampleLabel: '或者试试示例图片：',
+    featuresTitle: '为什么选择 Pixkee？',
+    howItWorksTitle: '工作流程',
+    formatsTitle: '支持的格式',
+    footer: '© 2026 Pixkee',
+    steps: [
+      { title: '上传', description: '拖拽或选择您的图片' },
+      { title: '调整', description: '选择格式和压缩质量' },
+      { title: '下载', description: '保存优化后的图片' },
+    ],
+    features: [
+      { title: '智能压缩', description: '先进算法在保持画质的同时减小体积。' },
+      { title: '多格式支持', description: '支持 JPEG, PNG, WebP, AVIF 等多种格式转换。' },
+      { title: '隐私优先', description: '所有处理都在本地进行。您的图片永远不会上传到服务器。' },
+      { title: '实时预览', description: '并排对比原图和压缩后的效果。' },
+    ],
+    benefits: {
+      fast: { title: '极速', desc: 'WebAssembly 驱动的闪电般压缩速度。在浏览器中秒级处理图片。' },
+      light: { title: '轻盈', desc: '大幅减少文件大小，肉眼几乎看不出画质损失。非常适合网页、移动应用和邮件。' },
+      secure: { title: '安全', desc: '担心隐私？Pixkee 所有工作都在本地完成，图片绝不离开您的设备。' },
+    },
+    nav: {
+      guestbook: '留言板',
+      product: '产品',
+      pricing: '价格',
+      login: '登录',
+    }
+  }
+};
+
 export default class Intro extends Component<Props, State> {
-  state: State = {};
-  private fileInput?: HTMLInputElement;
-  private installingViaButton = false;
+  constructor(props: Props) {
+    super(props);
+    let lang: 'en' | 'zh' = 'en';
+    if (typeof window !== 'undefined') {
+      const isZhPath = window.location.pathname === '/zh';
+      // Check local storage or just rely on path/navigator
+      if (isZhPath) {
+        lang = 'zh';
+      } else if (window.location.pathname === '/' || window.location.pathname === '') {
+        // Only auto-switch to zh if at root and system is zh
+        if (navigator.language.startsWith('zh')) {
+          lang = 'zh';
+          // Replace state to avoid back-button loop if we wanted strict redirect
+          // But for client-side navigation feeling, replaceState is good for initial load
+          window.history.replaceState({}, '', '/zh');
+        }
+      }
+    }
 
-  componentDidMount() {
-    window.addEventListener(
-      'beforeinstallprompt',
-      this.onBeforeInstallPromptEvent,
-    );
-    window.addEventListener('appinstalled', this.onAppInstalled);
+    this.state = {
+      lang,
+      isLangMenuOpen: false,
+    };
   }
 
-  componentWillUnmount() {
-    window.removeEventListener(
-      'beforeinstallprompt',
-      this.onBeforeInstallPromptEvent,
-    );
-    window.removeEventListener('appinstalled', this.onAppInstalled);
+  private toggleLang = () => {
+    this.setState(prev => ({ isLangMenuOpen: !prev.isLangMenuOpen }));
   }
 
-  private onFileChange = (event: Event): void => {
-    const fileInput = event.target as HTMLInputElement;
-    const file = fileInput.files && fileInput.files[0];
-    if (!file) return;
-    this.fileInput!.value = '';
-    this.props.onFile!(file);
-  };
+  private setLang = (lang: 'en' | 'zh') => {
+    this.setState({ lang, isLangMenuOpen: false });
+    if (lang === 'zh') {
+      window.history.pushState({}, '', '/zh');
+    } else {
+      window.history.pushState({}, '', '/');
+    }
+  }
+
+  // ... (existing handlers: onOpenClick, byDemoClick, onPasteClick) remain unchanged, just update render
 
   private onOpenClick = () => {
-    this.fileInput!.click();
+    // Create a temporary input to ensure 'multiple' works correctly
+    const input = document.createElement('input');
+    input.type = 'file';
+    input.multiple = true;
+    input.setAttribute('multiple', 'multiple'); // Explicit attribute for safety
+    input.accept = 'image/*';
+    input.style.display = 'none'; // hidden
+    document.body.appendChild(input);
+
+    input.onchange = (e) => {
+      const files = (e.target as HTMLInputElement).files;
+      console.log('Dynamic Input: files selected', files);
+      if (files && files.length > 0) {
+        if (files.length === 1) {
+          this.props.onFile!(files[0]);
+        } else {
+          this.props.onFile!(Array.from(files));
+        }
+      }
+      document.body.removeChild(input);
+    };
+
+    input.click();
   };
 
   private onDemoClick = async (index: number, event: Event) => {
@@ -158,43 +267,6 @@ export default class Intro extends Component<Props, State> {
       this.setState({ fetchingDemoIndex: undefined });
       this.props.showSnack!("Couldn't fetch demo image");
     }
-  };
-
-  private onBeforeInstallPromptEvent = (event: BeforeInstallPromptEvent) => {
-    event.preventDefault();
-    this.setState({ beforeInstallEvent: event });
-    const gaEventInfo = {
-      eventCategory: 'pwa-install',
-      eventAction: 'promo-shown',
-      nonInteraction: true,
-    };
-    ga('send', 'event', gaEventInfo);
-  };
-
-  private onInstallClick = async (event: Event) => {
-    const beforeInstallEvent = this.state.beforeInstallEvent;
-    if (!beforeInstallEvent) return;
-    this.installingViaButton = true;
-    beforeInstallEvent.prompt();
-    const { outcome } = await beforeInstallEvent.userChoice;
-    const gaEventInfo = {
-      eventCategory: 'pwa-install',
-      eventAction: 'promo-clicked',
-      eventLabel: installButtonSource,
-      eventValue: outcome === 'accepted' ? 1 : 0,
-    };
-    ga('send', 'event', gaEventInfo);
-    if (outcome === 'dismissed') {
-      this.installingViaButton = false;
-    }
-  };
-
-  private onAppInstalled = () => {
-    this.setState({ beforeInstallEvent: undefined });
-    if (document.hidden) return;
-    const source = this.installingViaButton ? installButtonSource : 'browser';
-    ga('send', 'event', 'pwa-install', 'installed', source);
-    this.installingViaButton = false;
   };
 
   private onPasteClick = async () => {
@@ -215,17 +287,12 @@ export default class Intro extends Component<Props, State> {
 
   render(
     { }: Props,
-    { fetchingDemoIndex, beforeInstallEvent }: State,
+    { fetchingDemoIndex, lang, isLangMenuOpen }: State,
   ) {
+    const t = translations[lang];
+
     return (
       <div class={style.page}>
-        <input
-          class={style.hide}
-          ref={linkRef(this, 'fileInput')}
-          type="file"
-          onChange={this.onFileChange}
-        />
-
         {/* Header */}
         <header class={style.header}>
           <div class={style.headerInner}>
@@ -234,14 +301,30 @@ export default class Intro extends Component<Props, State> {
               <span class={style.logoText}>Pixkee</span>
             </div>
             <nav class={style.headerNav}>
-              <button class={style.navLink} onClick={this.props.onFeedbackClick}>
-                Guestbook
-              </button>
-              {beforeInstallEvent && (
-                <button class={style.navButton} onClick={this.onInstallClick}>
-                  Install
+              {/* Language Switcher */}
+              <div class={style.langContainer}>
+                <button class={style.langButton} onClick={this.toggleLang}>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="2" y1="12" x2="22" y2="12"></line>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                  </svg>
+                  {lang === 'en' ? 'English' : '简体中文'}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style={{ marginLeft: 4 }}>
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
                 </button>
-              )}
+                {isLangMenuOpen && (
+                  <div class={style.langMenu}>
+                    <button class={style.langMenuItem} onClick={() => this.setLang('en')}>English</button>
+                    <button class={style.langMenuItem} onClick={() => this.setLang('zh')}>简体中文</button>
+                  </div>
+                )}
+              </div>
+
+              <button class={style.navLink} onClick={this.props.onFeedbackClick}>
+                {t.nav.guestbook}
+              </button>
             </nav>
           </div>
         </header>
@@ -250,32 +333,41 @@ export default class Intro extends Component<Props, State> {
         <section class={style.hero}>
           <div class={style.heroContent}>
             <h1 class={style.heroTitle}>
-              Compress images <span class={style.heroHighlight}>instantly</span>
+              {t.heroTitle} <span class={style.heroHighlight}>{t.heroHighlight}</span>
             </h1>
             <p class={style.heroSubtitle}>
-              The ultimate image optimizer. Reduce file sizes without losing quality.
+              {t.heroSubtitle}
             </p>
 
             {/* Upload Area */}
             <div class={style.uploadArea} onClick={this.onOpenClick}>
               <div class={style.uploadIcon}>
                 <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor">
-                  <path d="M19 7v3h-2V7h-3V5h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5a2 2 0 00-2 2v12c0 1.1.9 2 2 2h12a2 2 0 002-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z" />
+                  <path d="M19.35 10.04A7.49 7.49 0 0 0 12 4C9.11 4 6.6 5.64 5.35 8.04A5.994 5.994 0 0 0 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z" />
                 </svg>
               </div>
               <p class={style.uploadText}>
-                <strong>Drop image here</strong> or click to browse
+                <strong>{t.dropText}</strong> {t.browseText}
               </p>
               {supportsClipboardAPI && (
                 <button class={style.pasteButton} onClick={(e) => { e.stopPropagation(); this.onPasteClick(); }}>
-                  or paste from clipboard
+                  {t.pasteText}
                 </button>
               )}
             </div>
 
+            {/* Batch Processing UI */}
+            {this.props.files && this.props.files.length > 0 && this.props.Batch && (
+              <this.props.Batch
+                files={this.props.files}
+                showSnack={this.props.showSnack!}
+                onBack={() => this.props.onFile!([])}
+              />
+            )}
+
             {/* Demo Images */}
             <div class={style.demoSection}>
-              <p class={style.demoLabel}>Or try a sample:</p>
+              <p class={style.demoLabel}>{t.sampleLabel}</p>
               <div class={style.demoGrid}>
                 {demos.map((demo, i) => (
                   <button
@@ -299,13 +391,13 @@ export default class Intro extends Component<Props, State> {
         {/* Features Section */}
         <section class={style.features}>
           <div class={style.container}>
-            <h2 class={style.sectionTitle}>Why Choose Squoosh?</h2>
+            <h2 class={style.sectionTitle}>{t.featuresTitle}</h2>
             <div class={style.featureGrid}>
-              {features.map((feature) => (
+              {features.map((feature, i) => (
                 <div class={style.featureCard}>
                   <span class={style.featureIcon}>{feature.icon}</span>
-                  <h3 class={style.featureTitle}>{feature.title}</h3>
-                  <p class={style.featureDesc}>{feature.description}</p>
+                  <h3 class={style.featureTitle}>{t.features[i].title}</h3>
+                  <p class={style.featureDesc}>{t.features[i].description}</p>
                 </div>
               ))}
             </div>
@@ -315,13 +407,13 @@ export default class Intro extends Component<Props, State> {
         {/* How It Works */}
         <section class={style.howItWorks}>
           <div class={style.container}>
-            <h2 class={style.sectionTitle}>How It Works</h2>
+            <h2 class={style.sectionTitle}>{t.howItWorksTitle}</h2>
             <div class={style.stepsGrid}>
               {steps.map((step, i) => (
                 <div class={style.stepCard}>
                   <div class={style.stepNumber}>{step.number}</div>
-                  <h3 class={style.stepTitle}>{step.title}</h3>
-                  <p class={style.stepDesc}>{step.description}</p>
+                  <h3 class={style.stepTitle}>{t.steps[i].title}</h3>
+                  <p class={style.stepDesc}>{t.steps[i].description}</p>
                   {i < steps.length - 1 && <div class={style.stepArrow}>→</div>}
                 </div>
               ))}
@@ -332,7 +424,7 @@ export default class Intro extends Component<Props, State> {
         {/* Supported Formats */}
         <section class={style.formats}>
           <div class={style.container}>
-            <h2 class={style.sectionTitle}>Supported Formats</h2>
+            <h2 class={style.sectionTitle}>{t.formatsTitle}</h2>
             <div class={style.formatGrid}>
               {formats.map((format) => (
                 <div class={style.formatBadge} style={{ '--format-color': format.color }}>
@@ -351,22 +443,15 @@ export default class Intro extends Component<Props, State> {
                 <img src={smallSectionAsset} alt="Small file sizes" width="300" />
               </div>
               <div class={style.benefitContent}>
-                <h2 class={style.benefitTitle}>Small</h2>
-                <p class={style.benefitDesc}>
-                  Smaller images mean faster load times. Squoosh can reduce
-                  file size and maintain high quality.
-                </p>
+                <h2 class={style.benefitTitle}>{t.benefits.fast.title}</h2>
+                <p class={style.benefitDesc}>{t.benefits.fast.desc}</p>
               </div>
             </div>
 
             <div class={style.benefitCard}>
               <div class={style.benefitContent}>
-                <h2 class={style.benefitTitle}>Simple</h2>
-                <p class={style.benefitDesc}>
-                  Open your image, inspect the differences, then save
-                  instantly. Feeling adventurous? Adjust the settings for even
-                  smaller files.
-                </p>
+                <h2 class={style.benefitTitle}>{t.benefits.light.title}</h2>
+                <p class={style.benefitDesc}>{t.benefits.light.desc}</p>
               </div>
               <div class={style.benefitImage}>
                 <img src={simpleSectionAsset} alt="Simple to use" width="300" />
@@ -378,11 +463,8 @@ export default class Intro extends Component<Props, State> {
                 <img src={secureSectionAsset} alt="Secure and private" width="300" />
               </div>
               <div class={style.benefitContent}>
-                <h2 class={style.benefitTitle}>Secure</h2>
-                <p class={style.benefitDesc}>
-                  Worried about privacy? Images never leave your device since
-                  Squoosh does all the work locally.
-                </p>
+                <h2 class={style.benefitTitle}>{t.benefits.secure.title}</h2>
+                <p class={style.benefitDesc}>{t.benefits.secure.desc}</p>
               </div>
             </div>
           </div>
@@ -391,7 +473,7 @@ export default class Intro extends Component<Props, State> {
         {/* Footer */}
         <footer class={style.footer}>
           <div class={style.container}>
-            <p>© 2026 Squoosh. Made with ❤️ for the web.</p>
+            <p>{t.footer}</p>
           </div>
         </footer>
 
@@ -400,3 +482,4 @@ export default class Intro extends Component<Props, State> {
     );
   }
 }
+

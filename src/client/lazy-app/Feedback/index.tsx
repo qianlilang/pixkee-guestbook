@@ -11,7 +11,7 @@ interface FeedbackProps {
     onBack?: () => void;
 }
 
-const STORAGE_KEY = 'squoosh-comments';
+const STORAGE_KEY = 'pixkee-comments';
 
 export default function Feedback({ onBack }: FeedbackProps) {
     const [comments, setComments] = useState<Comment[]>([]);

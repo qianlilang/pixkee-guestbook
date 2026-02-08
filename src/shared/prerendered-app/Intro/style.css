@@ -1,5 +1,5 @@
 /* ============================================
-   Squoosh SaaS-Style Landing Page
+   Pixkee SaaS-Style Landing Page
    Inspired by 6.seowhy.com
    ============================================ */
 
@@ -72,6 +72,64 @@
   align-items: center;
 }
 
+.langContainer {
+  position: relative;
+  display: inline-block;
+}
+
+.langButton {
+  background: white;
+  border: 1px solid #e5e7eb;
+  color: var(--dim-text);
+  padding: 8px 16px;
+  border-radius: 99px;
+  /* Pill shape */
+  cursor: pointer;
+  font-size: 0.9rem;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: all 0.2s;
+}
+
+.langButton:hover {
+  border-color: var(--deep-blue);
+  color: var(--deep-blue);
+}
+
+.langMenu {
+  position: absolute;
+  top: 100%;
+  right: 0;
+  margin-top: 8px;
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  width: 140px;
+  overflow: hidden;
+  z-index: 1000;
+}
+
+.langMenuItem {
+  display: block;
+  width: 100%;
+  padding: 10px 16px;
+  text-align: left;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--dim-text);
+  font-size: 0.95rem;
+  transition: background 0.2s;
+}
+
+.langMenuItem:hover {
+  background: #f3f4f6;
+  color: var(--deep-blue);
+}
+
 .nav-link {
   background: transparent;
   border: none;
@@ -134,7 +192,7 @@
 }
 
 .hero-highlight {
-  color: var(--deep-blue);
+  color: #0ab3ee;
 }
 
 .hero-subtitle {
@@ -160,7 +218,7 @@
 }
 
 .upload-icon {
-  color: var(--deep-blue);
+  color: #0ab3ee;
   margin-bottom: 1rem;
 }
 
