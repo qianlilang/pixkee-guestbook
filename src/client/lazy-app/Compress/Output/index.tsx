@@ -21,6 +21,7 @@ import { cleanSet } from '../../util/clean-modify';
 import type { SourceImage } from '../../Compress';
 import { linkRef } from 'shared/prerendered-app/util';
 import { drawDataToCanvas } from 'client/lazy-app/util/canvas';
+import { Language, translations } from 'client/lazy-app/i18n';
 interface Props {
   source?: SourceImage;
   preprocessorState?: PreprocessorState;
@@ -30,6 +31,7 @@ interface Props {
   leftImgContain: boolean;
   rightImgContain: boolean;
   onPreprocessorChange: (newState: PreprocessorState) => void;
+  lang: Language;
 }
 
 interface State {
@@ -263,9 +265,10 @@ export default class Output extends Component<Props, State> {
   };
 
   render(
-    { mobileView, leftImgContain, rightImgContain, source }: Props,
+    { mobileView, leftImgContain, rightImgContain, source, lang }: Props,
     { scale, editingScale, altBackground, aliasing }: State,
   ) {
+    const t = translations[lang].output;
     const leftDraw = this.leftDrawable();
     const rightDraw = this.rightDrawable();
     // To keep position stable, the output is put in a square using the longest dimension.
@@ -298,9 +301,8 @@ export default class Output extends Component<Props, State> {
               ref={linkRef(this, 'pinchZoomLeft')}
             >
               <canvas
-                class={`${style.pinchTarget} ${
-                  aliasing ? style.pixelated : ''
-                }`}
+                class={`${style.pinchTarget} ${aliasing ? style.pixelated : ''
+                  }`}
                 ref={linkRef(this, 'canvasLeft')}
                 width={leftDraw && leftDraw.width}
                 height={leftDraw && leftDraw.height}
@@ -316,9 +318,8 @@ export default class Output extends Component<Props, State> {
               ref={linkRef(this, 'pinchZoomRight')}
             >
               <canvas
-                class={`${style.pinchTarget} ${
-                  aliasing ? style.pixelated : ''
-                }`}
+                class={`${style.pinchTarget} ${aliasing ? style.pixelated : ''
+                  }`}
                 ref={linkRef(this, 'canvasRight')}
                 width={rightDraw && rightDraw.width}
                 height={rightDraw && rightDraw.height}
@@ -365,7 +366,7 @@ export default class Output extends Component<Props, State> {
             <button
               class={style.firstButton}
               onClick={this.onRotateClick}
-              title="Rotate"
+              title={t.rotate}
             >
               <RotateIcon />
             </button>
@@ -373,7 +374,7 @@ export default class Output extends Component<Props, State> {
               <button
                 class={style.button}
                 onClick={this.toggleAliasing}
-                title="Toggle smoothing"
+                title={t.toggleSmoothing}
               >
                 {aliasing ? (
                   <ToggleAliasingActiveIcon />
@@ -385,7 +386,7 @@ export default class Output extends Component<Props, State> {
             <button
               class={style.lastButton}
               onClick={this.toggleBackground}
-              title="Toggle background"
+              title={t.toggleBackground}
             >
               {altBackground ? (
                 <ToggleBackgroundActiveIcon />

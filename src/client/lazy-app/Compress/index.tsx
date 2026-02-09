@@ -41,6 +41,7 @@ import WorkerBridge from '../worker-bridge';
 import { resize } from 'features/processors/resize/client';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import { drawableToImageData } from '../util/canvas';
+import { Language } from 'client/lazy-app/i18n';
 
 export type OutputType = EncoderType | 'identity';
 
@@ -65,6 +66,7 @@ interface Props {
   file: File;
   showSnack: SnackBarElement['showSnackbar'];
   onBack: () => void;
+  lang: Language;
 }
 
 interface State {
@@ -810,6 +812,7 @@ export default class Compress extends Component<Props, State> {
         onCopyToOtherSideClick={this.onCopyToOtherClick}
         onSaveSideSettingsClick={this.onSaveSideSettingsClick}
         onImportSideSettingsClick={this.onImportSideSettingsClick}
+        lang={this.props.lang}
       />
     ));
 
@@ -825,6 +828,7 @@ export default class Compress extends Component<Props, State> {
             ? encoderMap[side.latestSettings.encoderState.type].meta.label
             : `${side.file ? `${side.file.name}` : 'Original Image'}`
         }
+        lang={this.props.lang}
       />
     ));
 
@@ -852,6 +856,7 @@ export default class Compress extends Component<Props, State> {
           rightImgContain={rightImgContain}
           preprocessorState={preprocessorState}
           onPreprocessorChange={this.onPreprocessorChange}
+          lang={this.props.lang}
         />
         <button class={style.back} onClick={onBack}>
           <svg viewBox="0 0 61 53.3">

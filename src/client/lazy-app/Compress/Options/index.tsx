@@ -18,6 +18,7 @@ import Select from './Select';
 import { Options as QuantOptionsComponent } from 'features/processors/quantize/client';
 import { Options as ResizeOptionsComponent } from 'features/processors/resize/client';
 import { ImportIcon, SaveIcon, SwapIcon } from 'client/lazy-app/icons';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 interface Props {
   index: 0 | 1;
@@ -31,6 +32,7 @@ interface Props {
   onCopyToOtherSideClick(index: 0 | 1): void;
   onSaveSideSettingsClick(index: 0 | 1): void;
   onImportSideSettingsClick(index: 0 | 1): void;
+  lang: Language;
 }
 
 interface State {
@@ -148,12 +150,18 @@ export default class Options extends Component<Props, State> {
   };
 
   render(
-    { source, encoderState, processorState }: Props,
+    { source, encoderState, processorState, lang }: Props,
     { supportedEncoderMap }: State,
   ) {
+    const t = translations[lang].options;
     const encoder = encoderState && encoderMap[encoderState.type];
     const EncoderOptionComponent =
       encoder && 'Options' in encoder ? encoder.Options : undefined;
+
+    const GlobalEncoderOptionComponent = EncoderOptionComponent as any;
+
+    const GlobalResizeOptionsComponent = ResizeOptionsComponent as any;
+    const GlobalQuantOptionsComponent = QuantOptionsComponent as any;
 
     return (
       <div
@@ -168,17 +176,17 @@ export default class Options extends Component<Props, State> {
             <div>
               <h3 class={style.optionsTitle}>
                 <div class={style.titleAndButtons}>
-                  Edit
+                  {t.edit}
                   <button
                     class={style.copyOverButton}
-                    title="Copy settings to other side"
+                    title={t.copySettings}
                     onClick={this.onCopyToOtherSideClick}
                   >
                     <SwapIcon />
                   </button>
                   <button
                     class={style.saveButton}
-                    title="Save side settings"
+                    title={t.saveSettings}
                     onClick={this.onSaveSideSettingClick}
                   >
                     <SaveIcon />
@@ -195,7 +203,7 @@ export default class Options extends Component<Props, State> {
                         ? style.buttonOpacity
                         : '')
                     }
-                    title="Import saved side settings"
+                    title={t.importSettings}
                     onClick={this.onImportSideSettingsClick}
                     disabled={
                       // Disabled if this side's settings haven't been saved
@@ -209,7 +217,7 @@ export default class Options extends Component<Props, State> {
                 </div>
               </h3>
               <label class={style.sectionEnabler}>
-                Resize
+                {t.resize}
                 <Toggle
                   name="resize.enable"
                   checked={!!processorState.resize.enabled}
@@ -218,18 +226,19 @@ export default class Options extends Component<Props, State> {
               </label>
               <Expander>
                 {processorState.resize.enabled ? (
-                  <ResizeOptionsComponent
+                  <GlobalResizeOptionsComponent
                     isVector={Boolean(source && source.vectorImage)}
                     inputWidth={source ? source.preprocessed.width : 1}
                     inputHeight={source ? source.preprocessed.height : 1}
                     options={processorState.resize}
                     onChange={this.onResizeOptionsChange}
+                    lang={lang}
                   />
                 ) : null}
               </Expander>
 
               <label class={style.sectionEnabler}>
-                Reduce palette
+                {t.reducePalette}
                 <Toggle
                   name="quantize.enable"
                   checked={!!processorState.quantize.enabled}
@@ -238,9 +247,10 @@ export default class Options extends Component<Props, State> {
               </label>
               <Expander>
                 {processorState.quantize.enabled ? (
-                  <QuantOptionsComponent
+                  <GlobalQuantOptionsComponent
                     options={processorState.quantize}
                     onChange={this.onQuantizerOptionsChange}
+                    lang={lang}
                   />
                 ) : null}
               </Expander>
@@ -248,7 +258,7 @@ export default class Options extends Component<Props, State> {
           )}
         </Expander>
 
-        <h3 class={style.optionsTitle}>Compress</h3>
+        <h3 class={style.optionsTitle}>{t.compress}</h3>
 
         <section class={`${style.optionOneCell} ${style.optionsSection}`}>
           {supportedEncoderMap ? (
@@ -257,29 +267,29 @@ export default class Options extends Component<Props, State> {
               onChange={this.onEncoderTypeChange}
               large
             >
-              <option value="identity">{`Original Image ${
-                this.props.source ? `(${this.props.source.file.name})` : ''
-              }`}</option>
+              <option value="identity">{`${t.originalImage} ${this.props.source ? `(${this.props.source.file.name})` : ''
+                }`}</option>
               {Object.entries(supportedEncoderMap).map(([type, encoder]) => (
                 <option value={type}>{encoder.meta.label}</option>
               ))}
             </Select>
           ) : (
             <Select large>
-              <option>Loading…</option>
+              <option>{t.loading}</option>
             </Select>
           )}
         </section>
 
         <Expander>
-          {EncoderOptionComponent && (
-            <EncoderOptionComponent
+          {GlobalEncoderOptionComponent && (
+            <GlobalEncoderOptionComponent
               options={
                 // Casting options, as encoderOptionsComponentMap[encodeData.type] ensures
                 // the correct type, but typescript isn't smart enough.
                 encoderState!.options as any
               }
               onChange={this.onEncoderOptionsChange}
+              lang={lang}
             />
           )}
         </Expander>

@@ -74,7 +74,7 @@ const Index: FunctionalComponent<Props> = () => (
     </head>
     <body>
       <div id="app">
-        <Intro />
+        <Intro lang="en" setLang={() => { }} />
         <noscript>
           <style
             dangerouslySetInnerHTML={{

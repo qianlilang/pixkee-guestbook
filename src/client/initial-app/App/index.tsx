@@ -1,6 +1,7 @@
 import type { FileDropEvent } from 'file-drop-element';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import type { SnackOptions } from 'shared/custom-els/snack-bar';
+import { Language } from 'client/lazy-app/i18n';
 
 import { h, Component } from 'preact';
 
@@ -36,6 +37,7 @@ interface State {
   Compress?: typeof import('client/lazy-app/Compress').default;
   Batch?: typeof import('client/lazy-app/Batch').default;
   Feedback?: typeof import('client/lazy-app/Feedback').default;
+  lang: Language;
 }
 
 export default class App extends Component<Props, State> {
@@ -51,12 +53,28 @@ export default class App extends Component<Props, State> {
     Compress: undefined,
     Batch: undefined,
     Feedback: undefined,
+    lang: 'en',
   };
 
   snackbar?: SnackBarElement;
 
   constructor() {
     super();
+
+    // Initialize Language
+    let lang: Language = 'en';
+    if (typeof window !== 'undefined') {
+      const isZhPath = window.location.pathname === '/zh';
+      if (isZhPath) {
+        lang = 'zh';
+      } else if (window.location.pathname === '/' || window.location.pathname === '') {
+        if (navigator.language.startsWith('zh')) {
+          lang = 'zh';
+          window.history.replaceState({}, '', '/zh');
+        }
+      }
+    }
+    this.state.lang = lang;
 
     this.state.isFeedbackOpen = location.pathname === ROUTE_FEEDBACK;
     if (this.state.isFeedbackOpen) this.loadFeedback();
@@ -164,6 +182,15 @@ export default class App extends Component<Props, State> {
     });
   };
 
+  private setLang = (lang: Language) => {
+    this.setState({ lang });
+    if (lang === 'zh') {
+      window.history.pushState({}, '', '/zh');
+    } else {
+      window.history.pushState({}, '', '/');
+    }
+  }
+
   render(
     { }: Props,
     {
@@ -175,6 +202,7 @@ export default class App extends Component<Props, State> {
       Batch,
       Feedback,
       awaitingShareTarget,
+      lang,
     }: State,
   ) {
     const showSpinner = awaitingShareTarget || (isEditorOpen && !Compress);
@@ -186,7 +214,7 @@ export default class App extends Component<Props, State> {
             <loading-spinner class={style.appLoader} />
           ) : isEditorOpen ? (
             Compress && (
-              <Compress file={file!} showSnack={this.showSnack} onBack={back} />
+              <Compress file={file!} showSnack={this.showSnack} onBack={back} lang={lang} />
             )
           ) : isFeedbackOpen ? (
             Feedback && <Feedback onBack={this.closeFeedback} />
@@ -197,6 +225,8 @@ export default class App extends Component<Props, State> {
               onFeedbackClick={this.openFeedback}
               files={files}
               Batch={Batch}
+              lang={lang}
+              setLang={this.setLang}
             />
           )}
           <snack-bar ref={linkRef(this, 'snackbar')} />

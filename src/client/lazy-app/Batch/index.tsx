@@ -16,14 +16,17 @@ import {
     encoderMap,
     EncoderState,
     ProcessorState,
+    EncoderType,
 } from '../feature-meta';
 import WorkerBridge from '../worker-bridge';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 interface Props {
     files: File[];
     showSnack: SnackBarElement['showSnackbar'];
     onBack: () => void;
+    lang: Language;
 }
 
 interface FileStatus {
@@ -44,6 +47,7 @@ interface State {
         total: number;
     };
     isZipping: boolean;
+    targetEncoder: EncoderType;
 }
 
 export default class Batch extends Component<Props, State> {
@@ -65,6 +69,7 @@ export default class Batch extends Component<Props, State> {
                 total: props.files.length,
             },
             isZipping: false,
+            targetEncoder: 'webP',
         };
     }
 
@@ -148,11 +153,13 @@ export default class Batch extends Component<Props, State> {
             };
 
             // Aggressive compression settings to match "George the Panda" / TinyPNG results
+            // Aggressive compression settings to match "George the Panda" / TinyPNG results
             let encoderSettings: EncoderState;
             let processorSettings: ProcessorState = { ...defaultProcessorState };
+            const { targetEncoder } = this.state;
 
-            if (item.file.type === 'image/png') {
-                // For PNG, we need quantization to get high compression ratios (lossy)
+            // Apply specific processor settings if needed (e.g. quantization for PNG-like)
+            if (targetEncoder === 'oxiPNG' || targetEncoder === 'browserPNG') {
                 processorSettings = {
                     ...defaultProcessorState,
                     quantize: {
@@ -162,69 +169,24 @@ export default class Batch extends Component<Props, State> {
                         dither: 1.0,
                     },
                 };
-                encoderSettings = {
-                    type: 'oxiPNG',
-                    options: {
-                        level: 2, // Standard
-                        interlace: false,
-                    },
-                };
-            } else if (item.file.type === 'image/webp') {
-                encoderSettings = {
-                    type: 'webP',
-                    options: {
-                        quality: 75,
-                        target_size: 0,
-                        target_PSNR: 0,
-                        method: 4,
-                        sns_strength: 50,
-                        filter_strength: 60,
-                        filter_sharpness: 0,
-                        filter_type: 1,
-                        partitions: 0,
-                        segments: 4,
-                        pass: 1,
-                        show_compressed: 0,
-                        preprocessing: 0,
-                        autofilter: 0,
-                        partition_limit: 0,
-                        alpha_compression: 1,
-                        alpha_filtering: 1,
-                        alpha_quality: 100,
-                        lossless: 0,
-                        exact: 0,
-                        image_hint: 0,
-                        emulate_jpeg_size: 0,
-                        thread_level: 0,
-                        low_memory: 0,
-                        near_lossless: 100,
-                        use_delta_palette: 0,
-                        use_sharp_yuv: 0,
-                    },
-                }
-            } else {
-                // JPEG
-                encoderSettings = {
-                    type: 'mozJPEG',
-                    options: {
-                        quality: 75,
-                        baseline: false,
-                        arithmetic: false,
-                        progressive: true,
-                        optimize_coding: true,
-                        smoothing: 0,
-                        color_space: 3, // JCS_YCbCr
-                        quant_table: 3, // MSSIM
-                        trellis_multipass: false,
-                        trellis_opt_zero: false,
-                        trellis_opt_table: false,
-                        trellis_loops: 1,
-                        auto_subsample: true,
-                        chroma_subsample: 2,
-                        separate_chroma_quality: false,
-                        chroma_quality: 75,
-                    },
-                };
+            }
+
+            // Get default options for the selected encoder
+            // @ts-ignore
+            const defaultOptions = encoderMap[targetEncoder].meta.defaultOptions;
+
+            encoderSettings = {
+                type: targetEncoder,
+                options: { ...defaultOptions },
+            } as EncoderState;
+
+            // Override specific defaults if needed to match "Aggressive" behavior
+            if (targetEncoder === 'webP') {
+                // @ts-ignore
+                encoderSettings.options.quality = 75;
+            } else if (targetEncoder === 'mozJPEG') {
+                // @ts-ignore
+                encoderSettings.options.quality = 75;
             }
 
             const processed = await processImage(
@@ -325,7 +287,8 @@ export default class Batch extends Component<Props, State> {
         }
     }
 
-    render({ onBack }: Props, { items, globalProgress, isZipping }: State) {
+    render({ onBack, lang }: Props, { items, globalProgress, isZipping }: State) {
+        const t = translations[lang].batch;
         const totalOriginal = items.reduce((acc, i) => acc + i.originalSize, 0);
         const totalCompressed = items.reduce((acc, i) => acc + (i.compressedFile ? i.compressedSize : i.originalSize), 0);
         const totalSaved = totalOriginal - totalCompressed;
@@ -339,15 +302,69 @@ export default class Batch extends Component<Props, State> {
                     <div class={style.headerLeft}>
                         <div class={style.titleMain}>
                             {globalProgress.processed < globalProgress.total
-                                ? 'Optimizing your images...'
+                                ? t.optimizing
                                 : percentage > 0
-                                    ? `Pixkee just saved you ${percentage}%`
-                                    : 'Optimization complete'}
+                                    ? `${t.saved} ${percentage}%`
+                                    : t.complete}
                         </div>
                         <div class={style.titleSub}>
-                            {items.length} images optimized | {this.formatSize(totalCompressed)} TOTAL
+                            {items.length} {t.optimized} | {this.formatSize(totalCompressed)} {t.total}
                         </div>
                     </div>
+
+                    <div class={style.headerCenter}>
+                        <span style={{ fontSize: '14px', color: '#9ca3af' }}>{t.format}</span>
+                        <select
+                            value={this.state.targetEncoder}
+                            onChange={(e) => {
+                                const newEncoder = (e.target as HTMLSelectElement).value as EncoderType;
+                                this.setState({ targetEncoder: newEncoder });
+                                // Reset items to pending and re-process
+                                // Note: In a real app we might want to only re-process done items or better yet, proper queue management.
+                                // For this v1 simple batch, we'll just reload the page or we could reset logic.
+                                // But simply changing state won't re-trigger processQueue for already done items in current logic.
+                                // Let's just allow changing for *next* or if we want to re-process we need to reset status.
+                                // IMPORTANT: Current processQueue runs ONCE on mount.
+                                // We should probably expose a way to restart or just accept this format is for *new* uploads if we were following strict flow.
+                                // BUT, for a better UX, let's reset and re-process.
+                                this.setState(prev => ({
+                                    globalProgress: { processed: 0, total: prev.items.length },
+                                    items: prev.items.map(i => ({
+                                        ...i,
+                                        status: 'pending',
+                                        compressedSize: 0,
+                                        compressedFile: undefined,
+                                        error: undefined
+                                    }))
+                                }), () => {
+                                    this.abortController.abort(); // Stop current
+                                    this.abortController = new AbortController(); // New controller
+                                    this.processQueue(); // Restart
+                                });
+                            }}
+                            style={{
+                                background: '#1e1e1e',
+                                color: '#e5e7eb',
+                                border: '1px solid #374151',
+                                borderRadius: '0.375rem',
+                                padding: '4px 8px',
+                                fontSize: '14px',
+                                outline: 'none'
+                            }}
+                        >
+                            <option value="webP">{encoderMap.webP.meta.label}</option>
+                            <option value="mozJPEG">{encoderMap.mozJPEG.meta.label}</option>
+                            <option value="oxiPNG">{encoderMap.oxiPNG.meta.label}</option>
+                            <option value="avif">{encoderMap.avif.meta.label}</option>
+                            <option value="jxl">{encoderMap.jxl.meta.label}</option>
+                            <option value="wp2">{encoderMap.wp2.meta.label}</option>
+                            <option value="qoi">{encoderMap.qoi.meta.label}</option>
+                            <option value="browserPNG">{encoderMap.browserPNG.meta.label}</option>
+                            <option value="browserJPEG">{encoderMap.browserJPEG.meta.label}</option>
+                            <option value="browserGIF">{encoderMap.browserGIF.meta.label}</option>
+                        </select>
+                    </div>
+
                     <div class={style.headerActions}>
                         {isFinished && (
                             <button
@@ -360,7 +377,7 @@ export default class Batch extends Component<Props, State> {
                                     <polyline points="7 10 12 15 17 10"></polyline>
                                     <line x1="12" y1="15" x2="12" y2="3"></line>
                                 </svg>
-                                {isZipping ? 'Zipping...' : 'Download all images'}
+                                {isZipping ? t.zipping : t.downloadAll}
                             </button>
                         )}
                         <button class={style.toolbarBtn} onClick={onBack} title="Close">
@@ -385,7 +402,11 @@ export default class Batch extends Component<Props, State> {
                             {/* Info */}
                             <div class={style.fileInfo}>
                                 <div class={style.fileName}>{item.file.name}</div>
-                                <span class={style.formatBadge}>{item.file.name.split('.').pop()}</span>
+                                <span class={style.formatBadge}>
+                                    {item.compressedFile
+                                        ? item.compressedFile.name.split('.').pop()
+                                        : encoderMap[this.state.targetEncoder].meta.extension}
+                                </span>
                                 <span class={style.fileSizeOriginal}>{this.formatSize(item.originalSize)}</span>
                             </div>
 
@@ -398,7 +419,7 @@ export default class Batch extends Component<Props, State> {
                                         </div>
                                     </div>
                                 ) : item.status === 'error' ? (
-                                    <span style={{ color: '#ef4444', fontWeight: 600 }}>Error</span>
+                                    <span style={{ color: '#ef4444', fontWeight: 600 }}>{t.error}</span>
                                 ) : (
                                     <Fragment>
                                         <div style={{ textAlign: 'right' }}>
@@ -418,7 +439,7 @@ export default class Batch extends Component<Props, State> {
                                                 <polyline points="7 10 12 15 17 10"></polyline>
                                                 <line x1="12" y1="15" x2="12" y2="3"></line>
                                             </svg>
-                                            {item.file.name.split('.').pop()?.toUpperCase()}
+                                            {item.compressedFile ? item.compressedFile.name.split('.').pop()?.toUpperCase() : t.download}
                                         </button>
                                     </Fragment>
                                 )}
@@ -455,7 +476,7 @@ export default class Batch extends Component<Props, State> {
                                     <polyline points="7 10 12 15 17 10"></polyline>
                                     <line x1="12" y1="15" x2="12" y2="3"></line>
                                 </svg>
-                                {isZipping ? 'Zipping...' : 'Download all images'}
+                                {isZipping ? t.zipping : t.downloadAll}
                             </button>
                         )}
                     </div>

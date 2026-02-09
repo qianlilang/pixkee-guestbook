@@ -108,11 +108,12 @@ interface Props {
   showSnack?: SnackBarElement['showSnackbar'];
   onFeedbackClick?: () => void;
   files?: File[];
+  lang: 'en' | 'zh';
+  setLang: (lang: 'en' | 'zh') => void;
   Batch?: typeof import('client/lazy-app/Batch').default;
 }
 interface State {
   fetchingDemoIndex?: number;
-  lang: 'en' | 'zh';
   isLangMenuOpen: boolean;
 }
 
@@ -192,25 +193,8 @@ const translations = {
 export default class Intro extends Component<Props, State> {
   constructor(props: Props) {
     super(props);
-    let lang: 'en' | 'zh' = 'en';
-    if (typeof window !== 'undefined') {
-      const isZhPath = window.location.pathname === '/zh';
-      // Check local storage or just rely on path/navigator
-      if (isZhPath) {
-        lang = 'zh';
-      } else if (window.location.pathname === '/' || window.location.pathname === '') {
-        // Only auto-switch to zh if at root and system is zh
-        if (navigator.language.startsWith('zh')) {
-          lang = 'zh';
-          // Replace state to avoid back-button loop if we wanted strict redirect
-          // But for client-side navigation feeling, replaceState is good for initial load
-          window.history.replaceState({}, '', '/zh');
-        }
-      }
-    }
 
     this.state = {
-      lang,
       isLangMenuOpen: false,
     };
   }
@@ -220,12 +204,8 @@ export default class Intro extends Component<Props, State> {
   }
 
   private setLang = (lang: 'en' | 'zh') => {
-    this.setState({ lang, isLangMenuOpen: false });
-    if (lang === 'zh') {
-      window.history.pushState({}, '', '/zh');
-    } else {
-      window.history.pushState({}, '', '/');
-    }
+    this.props.setLang(lang);
+    this.setState({ isLangMenuOpen: false });
   }
 
   // ... (existing handlers: onOpenClick, byDemoClick, onPasteClick) remain unchanged, just update render
@@ -286,8 +266,8 @@ export default class Intro extends Component<Props, State> {
   };
 
   render(
-    { }: Props,
-    { fetchingDemoIndex, lang, isLangMenuOpen }: State,
+    { lang }: Props,
+    { fetchingDemoIndex, isLangMenuOpen }: State,
   ) {
     const t = translations[lang];
 
@@ -362,6 +342,7 @@ export default class Intro extends Component<Props, State> {
                 files={this.props.files}
                 showSnack={this.props.showSnack!}
                 onBack={() => this.props.onFile!([])}
+                lang={lang}
               />
             )}
 

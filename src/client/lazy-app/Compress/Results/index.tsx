@@ -6,6 +6,7 @@ import 'shared/custom-els/loading-spinner';
 import { SourceImage } from '../';
 import prettyBytes from './pretty-bytes';
 import { Arrow, DownloadIcon } from 'client/lazy-app/icons';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 interface Props {
   loading: boolean;
@@ -14,6 +15,7 @@ interface Props {
   downloadUrl?: string;
   flipSide: boolean;
   typeLabel: string;
+  lang: Language;
 }
 
 interface State {
@@ -59,9 +61,10 @@ export default class Results extends Component<Props, State> {
   };
 
   render(
-    { source, imageFile, downloadUrl, flipSide, typeLabel }: Props,
+    { source, imageFile, downloadUrl, flipSide, typeLabel, lang }: Props,
     { showLoadingState }: State,
   ) {
+    const t = translations[lang].results;
     const prettySize = imageFile && prettyBytes(imageFile.size);
     const isOriginal = !source || !imageFile || source.file === imageFile;
     let diff;
@@ -123,7 +126,7 @@ export default class Results extends Component<Props, State> {
           class={showLoadingState ? style.downloadDisable : style.download}
           href={downloadUrl}
           download={imageFile ? imageFile.name : ''}
-          title="Download"
+          title={t.download}
           onClick={this.onDownload}
         >
           <svg class={style.downloadBlobs} viewBox="0 0 89.6 86.9">

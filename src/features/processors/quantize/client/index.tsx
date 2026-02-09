@@ -9,12 +9,14 @@ import {
 import Expander from 'client/lazy-app/Compress/Options/Expander';
 import Select from 'client/lazy-app/Compress/Options/Select';
 import Range from 'client/lazy-app/Compress/Options/Range';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 const konamiPromise = konami();
 
 interface Props {
   options: QuantizeOptions;
   onChange(newOptions: QuantizeOptions): void;
+  lang: Language;
 }
 
 interface State {
@@ -47,13 +49,14 @@ export class Options extends Component<Props, State> {
     this.props.onChange(newOptions);
   };
 
-  render({ options }: Props, { extendedSettings }: State) {
+  render({ options, lang }: Props, { extendedSettings }: State) {
+    const t = translations[lang].quantize;
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <Expander>
           {extendedSettings ? (
             <label class={style.optionTextFirst}>
-              Type:
+              {t.type}
               <Select
                 name="zx"
                 value={'' + options.zx}
@@ -75,7 +78,7 @@ export class Options extends Component<Props, State> {
                 value={options.maxNumColors}
                 onInput={this.onChange}
               >
-                Colors:
+                {t.colors}
               </Range>
             </div>
           )}
@@ -89,10 +92,11 @@ export class Options extends Component<Props, State> {
             value={options.dither}
             onInput={this.onChange}
           >
-            Dithering:
+            {t.dithering}
           </Range>
         </div>
       </form>
     );
   }
 }
+

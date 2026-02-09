@@ -23,16 +23,24 @@ export function encode(
   return workerBridge.mozjpegEncode(signal, imageData, options);
 }
 
+import { Language, translations } from 'client/lazy-app/i18n';
+
+// ... (imports remain matching existing file context, ensuring they are not lost if outside replacement range)
+// Note: I will replace the component class and imports as needed.
+
 interface Props {
   options: EncodeOptions;
   onChange(newOptions: EncodeOptions): void;
+  lang: Language;
 }
 
+// ... (State interface remains)
 interface State {
   showAdvanced: boolean;
 }
 
 export class Options extends Component<Props, State> {
+  // ... (state and onChange remain)
   state: State = {
     showAdvanced: false,
   };
@@ -101,7 +109,8 @@ export class Options extends Component<Props, State> {
     this.props.onChange(newOptions);
   };
 
-  render({ options }: Props, { showAdvanced }: State) {
+  render({ options, lang }: Props, { showAdvanced }: State) {
+    const t = translations[lang].mozJPEG;
     // I'm rendering both lossy and lossless forms, as it becomes much easier when
     // gathering the data.
     return (
@@ -114,7 +123,7 @@ export class Options extends Component<Props, State> {
             value={options.quality}
             onInput={this.onChange}
           >
-            Quality:
+            {t.quality}
           </Range>
         </div>
         <label class={style.optionReveal}>
@@ -122,28 +131,28 @@ export class Options extends Component<Props, State> {
             checked={showAdvanced}
             onChange={linkState(this, 'showAdvanced')}
           />
-          Advanced settings
+          {t.advancedSettings}
         </label>
         <Expander>
           {showAdvanced ? (
             <div>
               <label class={style.optionTextFirst}>
-                Channels:
+                {t.channels}
                 <Select
                   name="color_space"
                   value={options.color_space}
                   onChange={this.onChange}
                 >
-                  <option value={MozJpegColorSpace.GRAYSCALE}>Grayscale</option>
-                  <option value={MozJpegColorSpace.RGB}>RGB</option>
-                  <option value={MozJpegColorSpace.YCbCr}>YCbCr</option>
+                  <option value={MozJpegColorSpace.GRAYSCALE}>{t.grayscale}</option>
+                  <option value={MozJpegColorSpace.RGB}>{t.rgb}</option>
+                  <option value={MozJpegColorSpace.YCbCr}>{t.ycbcr}</option>
                 </Select>
               </label>
               <Expander>
                 {options.color_space === MozJpegColorSpace.YCbCr ? (
                   <div>
                     <label class={style.optionToggle}>
-                      Auto subsample chroma
+                      {t.autoSubsampleChroma}
                       <Checkbox
                         name="auto_subsample"
                         checked={options.auto_subsample}
@@ -160,13 +169,13 @@ export class Options extends Component<Props, State> {
                             value={options.chroma_subsample}
                             onInput={this.onChange}
                           >
-                            Subsample chroma by:
+                            {t.subsampleChromaBy}
                           </Range>
                         </div>
                       )}
                     </Expander>
                     <label class={style.optionToggle}>
-                      Separate chroma quality
+                      {t.separateChromaQuality}
                       <Checkbox
                         name="separate_chroma_quality"
                         checked={options.separate_chroma_quality}
@@ -183,7 +192,7 @@ export class Options extends Component<Props, State> {
                             value={options.chroma_quality}
                             onInput={this.onChange}
                           >
-                            Chroma quality:
+                            {t.chromaQuality}
                           </Range>
                         </div>
                       ) : null}
@@ -192,7 +201,7 @@ export class Options extends Component<Props, State> {
                 ) : null}
               </Expander>
               <label class={style.optionToggle}>
-                Pointless spec compliance
+                {t.pointlessSpecCompliance}
                 <Checkbox
                   name="baseline"
                   checked={options.baseline}
@@ -202,7 +211,7 @@ export class Options extends Component<Props, State> {
               <Expander>
                 {options.baseline ? null : (
                   <label class={style.optionToggle}>
-                    Progressive rendering
+                    {t.progressiveRendering}
                     <Checkbox
                       name="progressive"
                       checked={options.progressive}
@@ -214,7 +223,7 @@ export class Options extends Component<Props, State> {
               <Expander>
                 {options.baseline ? (
                   <label class={style.optionToggle}>
-                    Optimize Huffman table
+                    {t.optimizeHuffmanTable}
                     <Checkbox
                       name="optimize_coding"
                       checked={options.optimize_coding}
@@ -231,11 +240,11 @@ export class Options extends Component<Props, State> {
                   value={options.smoothing}
                   onInput={this.onChange}
                 >
-                  Smoothing:
+                  {t.smoothing}
                 </Range>
               </div>
               <label class={style.optionTextFirst}>
-                Quantization:
+                {t.quantization}
                 <Select
                   name="quant_table"
                   value={options.quant_table}
@@ -253,7 +262,7 @@ export class Options extends Component<Props, State> {
                 </Select>
               </label>
               <label class={style.optionToggle}>
-                Trellis multipass
+                {t.trellisMultipass}
                 <Checkbox
                   name="trellis_multipass"
                   checked={options.trellis_multipass}
@@ -263,7 +272,7 @@ export class Options extends Component<Props, State> {
               <Expander>
                 {options.trellis_multipass ? (
                   <label class={style.optionToggle}>
-                    Optimize zero block runs
+                    {t.optimizeZeroBlockRuns}
                     <Checkbox
                       name="trellis_opt_zero"
                       checked={options.trellis_opt_zero}
@@ -273,7 +282,7 @@ export class Options extends Component<Props, State> {
                 ) : null}
               </Expander>
               <label class={style.optionToggle}>
-                Optimize after trellis quantization
+                {t.optimizeAfterTrellisQuantization}
                 <Checkbox
                   name="trellis_opt_table"
                   checked={options.trellis_opt_table}
@@ -288,7 +297,7 @@ export class Options extends Component<Props, State> {
                   value={options.trellis_loops}
                   onInput={this.onChange}
                 >
-                  Trellis quantization passes:
+                  {t.trellisQuantizationPasses}
                 </Range>
               </div>
             </div>

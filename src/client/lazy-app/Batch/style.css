@@ -39,6 +39,12 @@
     font-weight: 500;
 }
 
+.headerCenter {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
 .headerActions {
     display: flex;
     align-items: center;
