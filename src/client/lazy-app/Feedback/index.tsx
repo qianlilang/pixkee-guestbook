@@ -1,6 +1,7 @@
 import { h } from 'preact';
 import { useState, useEffect } from 'preact/hooks';
 import { supabase } from '../../supabase';
+import { Language, translations } from '../i18n';
 
 import CommentList, { Comment } from './CommentList';
 import CommentForm from './CommentForm';
@@ -9,13 +10,15 @@ import 'add-css:./styles.css';
 
 interface FeedbackProps {
     onBack?: () => void;
+    lang: Language;
 }
 
 const STORAGE_KEY = 'pixkee-comments';
 
-export default function Feedback({ onBack }: FeedbackProps) {
+export default function Feedback({ onBack, lang }: FeedbackProps) {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
+    const t = translations[lang].feedback;
 
     useEffect(() => {
         loadComments();
@@ -241,25 +244,30 @@ export default function Feedback({ onBack }: FeedbackProps) {
                         </button>
                     )}
                     <div>
-                        <h1 class={style.title}>Feedback</h1>
-                        <p class={style.subtitle}>Leave your feedback, suggestions, or just say hello!</p>
+                        <h1 class={style.title}>{t.title}</h1>
+                        <p class={style.subtitle}>{t.subtitle}</p>
                     </div>
                 </header>
 
-                <CommentForm onSubmit={handlePost} placeholder="Type your comment..." />
+                <CommentForm
+                    onSubmit={handlePost}
+                    placeholder={t.placeholder}
+                    lang={lang}
+                />
 
                 <div class={style.commentsSection}>
                     <h2 class={style.sectionTitle}>
-                        Latest Comments ({comments.length})
+                        {t.latestComments} ({comments.length})
                     </h2>
 
                     {loading ? (
-                        <div class={style.loading}>Loading...</div>
+                        <div class={style.loading}>{t.loading}</div>
                     ) : (
                         <CommentList
                             comments={comments}
                             onLike={handleLike}
                             onReply={handleReply}
+                            lang={lang}
                         />
                     )}
                 </div>

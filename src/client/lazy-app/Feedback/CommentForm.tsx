@@ -1,18 +1,22 @@
 import { h } from 'preact';
 import { useState, useRef } from 'preact/hooks';
 import * as style from './styles.css';
+import { Language, translations } from '../i18n';
 
 interface CommentFormProps {
     onSubmit: (content: string, image: File | null) => Promise<void>;
     placeholder?: string;
     isReply?: boolean;
+    lang: Language;
 }
 
-export default function CommentForm({ onSubmit, placeholder = "Share your thoughts...", isReply }: CommentFormProps) {
+export default function CommentForm({ onSubmit, placeholder, isReply, lang }: CommentFormProps) {
     const [content, setContent] = useState('');
     const [image, setImage] = useState<File | null>(null);
     const [isSubmitting, setIsSubmitting] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const t = translations[lang].feedback;
+    const effectivePlaceholder = placeholder || t.placeholder;
 
     const handleSubmit = async (e: Event) => {
         e.preventDefault();
@@ -44,7 +48,7 @@ export default function CommentForm({ onSubmit, placeholder = "Share your though
             <textarea
                 value={content}
                 onInput={(e) => setContent((e.target as HTMLTextAreaElement).value)}
-                placeholder={placeholder}
+                placeholder={effectivePlaceholder}
                 class={style.textarea}
             />
 
@@ -84,7 +88,7 @@ export default function CommentForm({ onSubmit, placeholder = "Share your though
                     disabled={(!content.trim() && !image) || isSubmitting}
                     class={style.submitButton}
                 >
-                    {isSubmitting ? 'Posting...' : 'Post'}
+                    {isSubmitting ? t.posting : t.post}
                 </button>
             </div>
         </form>

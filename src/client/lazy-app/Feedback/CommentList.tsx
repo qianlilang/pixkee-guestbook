@@ -2,6 +2,7 @@ import { h } from 'preact';
 import { useState } from 'preact/hooks';
 import * as style from './styles.css';
 import CommentForm from './CommentForm';
+import { Language, translations } from '../i18n';
 
 export interface Comment {
     id: string;
@@ -17,16 +18,18 @@ interface CommentListProps {
     comments: Comment[];
     onLike: (commentId: string) => void;
     onReply: (commentId: string, content: string, image: File | null) => Promise<void>;
+    lang: Language;
 }
 
-function CommentItem({ comment, onLike, onReply, depth = 0 }: { comment: Comment; onLike: (id: string) => void; onReply: (id: string, c: string, i: File | null) => Promise<void>; depth?: number }) {
+function CommentItem({ comment, onLike, onReply, depth = 0, lang }: { comment: Comment; onLike: (id: string) => void; onReply: (id: string, c: string, i: File | null) => Promise<void>; depth?: number, lang: Language }) {
     const [isReplying, setIsReplying] = useState(false);
+    const t = translations[lang].feedback;
 
     const formatDate = (ts: number) => {
         const diff = Date.now() - ts;
         const hours = Math.floor(diff / (1000 * 60 * 60));
-        if (hours < 1) return 'Just now';
-        if (hours < 24) return `${hours} hours ago`;
+        if (hours < 1) return t.justNow;
+        if (hours < 24) return `${hours} ${t.hoursAgo}`;
         return new Date(ts).toLocaleDateString();
     };
 
@@ -57,7 +60,7 @@ function CommentItem({ comment, onLike, onReply, depth = 0 }: { comment: Comment
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                             <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z" />
                         </svg>
-                        <span>Reply</span>
+                        <span>{t.reply}</span>
                     </button>
                 </div>
 
@@ -67,15 +70,16 @@ function CommentItem({ comment, onLike, onReply, depth = 0 }: { comment: Comment
                             await onReply(comment.id, content, image);
                             setIsReplying(false);
                         }}
-                        placeholder="Write a reply..."
+                        placeholder={t.replyPlaceholder}
                         isReply
+                        lang={lang}
                     />
                 )}
 
                 {comment.replies && comment.replies.length > 0 && (
                     <div>
                         {comment.replies.map(reply => (
-                            <CommentItem key={reply.id} comment={reply} onLike={onLike} onReply={onReply} depth={depth + 1} />
+                            <CommentItem key={reply.id} comment={reply} onLike={onLike} onReply={onReply} depth={depth + 1} lang={lang} />
                         ))}
                     </div>
                 )}
@@ -84,11 +88,12 @@ function CommentItem({ comment, onLike, onReply, depth = 0 }: { comment: Comment
     );
 }
 
-export default function CommentList({ comments, onLike, onReply }: CommentListProps) {
+export default function CommentList({ comments, onLike, onReply, lang }: CommentListProps) {
+    const t = translations[lang].feedback;
     if (comments.length === 0) {
         return (
             <div class={style.emptyState}>
-                <p>No comments yet. Be the first to share!</p>
+                <p>{t.noComments}</p>
             </div>
         );
     }
@@ -96,7 +101,7 @@ export default function CommentList({ comments, onLike, onReply }: CommentListPr
     return (
         <div>
             {comments.map((comment) => (
-                <CommentItem key={comment.id} comment={comment} onLike={onLike} onReply={onReply} />
+                <CommentItem key={comment.id} comment={comment} onLike={onLike} onReply={onReply} lang={lang} />
             ))}
         </div>
     );

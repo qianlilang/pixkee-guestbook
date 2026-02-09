@@ -71,6 +71,20 @@ export const translations = {
             zipping: 'Zipping...',
             error: 'Error',
             download: 'DOWNLOAD',
+        },
+        feedback: {
+            title: 'Feedback',
+            subtitle: 'Leave your feedback, suggestions, or just say hello!',
+            latestComments: 'Latest Comments',
+            loading: 'Loading...',
+            placeholder: 'Share your thoughts...',
+            posting: 'Posting...',
+            post: 'Post',
+            noComments: 'No comments yet. Be the first to share!',
+            justNow: 'Just now',
+            hoursAgo: 'hours ago',
+            reply: 'Reply',
+            replyPlaceholder: 'Write a reply...',
         }
     },
     zh: {
@@ -145,6 +159,20 @@ export const translations = {
             zipping: '正在打包...',
             error: '错误',
             download: '下载',
+        },
+        feedback: {
+            title: '留言板',
+            subtitle: '留下您的反馈、建议，或者只是打个招呼！',
+            latestComments: '最新评论',
+            loading: '加载中...',
+            placeholder: '分享您的想法...',
+            posting: '发布中...',
+            post: '发布',
+            noComments: '暂无评论。快来抢沙发吧！',
+            justNow: '刚刚',
+            hoursAgo: '小时前',
+            reply: '回复',
+            replyPlaceholder: '写下您的回复...',
         }
     }
 };

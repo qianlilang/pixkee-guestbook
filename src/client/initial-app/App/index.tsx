@@ -217,7 +217,7 @@ export default class App extends Component<Props, State> {
               <Compress file={file!} showSnack={this.showSnack} onBack={back} lang={lang} />
             )
           ) : isFeedbackOpen ? (
-            Feedback && <Feedback onBack={this.closeFeedback} />
+            Feedback && <Feedback onBack={this.closeFeedback} lang={lang} />
           ) : (
             <Intro
               onFile={this.onIntroPickFile}
