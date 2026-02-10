@@ -208,6 +208,32 @@ export default class Compress extends Component<Props, State> {
     this.queueUpdateImage({ immediate: true });
 
     import('../sw-bridge').then(({ mainAppLoaded }) => mainAppLoaded());
+
+    // Initialize encoder based on shared persistence
+    try {
+      const sharedFormat = localStorage.getItem('pixkee-batch-format');
+      if (sharedFormat) {
+        let actualEncoder = sharedFormat as EncoderType;
+        if (sharedFormat === 'identity') {
+          const type = props.file.type;
+          if (type === 'image/png') actualEncoder = 'oxiPNG';
+          else if (type === 'image/webp') actualEncoder = 'webP';
+          else if (type === 'image/avif') actualEncoder = 'avif';
+          else actualEncoder = 'mozJPEG';
+        }
+
+        // Update right side (output) encoder
+        if (this.state.sides[1]) {
+          const defaultOptions = encoderMap[actualEncoder].meta.defaultOptions;
+          this.state.sides[1].latestSettings.encoderState = {
+            type: actualEncoder,
+            options: { ...defaultOptions },
+          } as EncoderState;
+          // Clear encodedSettings to force re-encode with new settings
+          this.state.sides[1].encodedSettings = undefined;
+        }
+      }
+    } catch (e) { }
   }
 
   private onMobileWidthChange = () => {
@@ -215,6 +241,10 @@ export default class Compress extends Component<Props, State> {
   };
 
   private onEncoderTypeChange = (index: 0 | 1, newType: OutputType): void => {
+    try {
+      localStorage.setItem('pixkee-batch-format', newType);
+    } catch (e) { }
+
     this.setState({
       sides: cleanSet(
         this.state.sides,
@@ -224,7 +254,7 @@ export default class Compress extends Component<Props, State> {
           : {
             type: newType,
             options: encoderMap[newType].meta.defaultOptions,
-          },
+          } as EncoderState,
       ),
     });
   };

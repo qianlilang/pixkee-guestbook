@@ -15,7 +15,7 @@ import { h, FunctionalComponent } from 'preact';
 import baseCss from 'css:./base.css';
 import initialCss from 'initial-css:';
 import { allSrc } from 'client-bundle:client/initial-app';
-import favicon from 'url:static-build/assets/favicon.ico';
+import favicon from 'url:static-build/assets/pixkee-icon-final.png';
 import ogImage from 'url:static-build/assets/icon-large-maskable.png';
 import { escapeStyleScriptContent, siteOrigin } from 'static-build/utils';
 import Intro from 'shared/prerendered-app/Intro';
@@ -58,7 +58,7 @@ const Index: FunctionalComponent<Props> = () => (
       />
       <meta name="mobile-web-app-capable" content="yes" />
       <meta name="apple-mobile-web-app-capable" content="yes" />
-      <link rel="shortcut icon" href={favicon} />
+      <link rel="icon" type="image/png" href={favicon} />
       <link rel="apple-touch-icon" href={ogImage} />
       <meta name="theme-color" content="#ff3385" />
       <link rel="manifest" href="/manifest.json" />

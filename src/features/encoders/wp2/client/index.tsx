@@ -10,6 +10,7 @@ import Checkbox from 'client/lazy-app/Compress/Options/Checkbox';
 import Expander from 'client/lazy-app/Compress/Options/Expander';
 import linkState from 'linkstate';
 import Revealer from 'client/lazy-app/Compress/Options/Revealer';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 export const encode = (
   signal: AbortSignal,
@@ -21,6 +22,7 @@ export const encode = (
 interface Props {
   options: EncodeOptions;
   onChange(newOptions: EncodeOptions): void;
+  lang: Language;
 }
 
 interface State {
@@ -136,7 +138,7 @@ export class Options extends Component<Props, State> {
   };
 
   render(
-    {}: Props,
+    { lang }: Props,
     {
       effort,
       alphaQuality,
@@ -153,10 +155,13 @@ export class Options extends Component<Props, State> {
       showAdvanced,
     }: State,
   ) {
+    const t = translations[lang].wp2;
+    const tMoz = translations[lang].mozJPEG;
+
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Lossless
+          {t.lossless}
           <Checkbox
             checked={lossless}
             onChange={this._inputChange('lossless', 'boolean')}
@@ -172,7 +177,7 @@ export class Options extends Component<Props, State> {
                 value={slightLoss}
                 onInput={this._inputChange('slightLoss', 'number')}
               >
-                Slight loss:
+                {t.slightLoss}
               </Range>
             </div>
           )}
@@ -188,11 +193,11 @@ export class Options extends Component<Props, State> {
                   value={quality}
                   onInput={this._inputChange('quality', 'number')}
                 >
-                  Quality:
+                  {t.quality}
                 </Range>
               </div>
               <label class={style.optionToggle}>
-                Separate alpha quality
+                {t.separateAlpha}
                 <Checkbox
                   checked={separateAlpha}
                   onChange={this._inputChange('separateAlpha', 'boolean')}
@@ -208,7 +213,7 @@ export class Options extends Component<Props, State> {
                       value={alphaQuality}
                       onInput={this._inputChange('alphaQuality', 'number')}
                     >
-                      Alpha Quality:
+                      {t.alphaQuality}
                     </Range>
                   </div>
                 )}
@@ -218,7 +223,7 @@ export class Options extends Component<Props, State> {
                   checked={showAdvanced}
                   onChange={linkState(this, 'showAdvanced')}
                 />
-                Advanced settings
+                {tMoz.advancedSettings}
               </label>
               <Expander>
                 {showAdvanced && (
@@ -231,7 +236,7 @@ export class Options extends Component<Props, State> {
                         value={passes}
                         onInput={this._inputChange('passes', 'number')}
                       >
-                        Passes:
+                        {t.passes}
                       </Range>
                     </div>
                     <div class={style.optionOneCell}>
@@ -242,7 +247,7 @@ export class Options extends Component<Props, State> {
                         value={sns}
                         onInput={this._inputChange('sns', 'number')}
                       >
-                        Spatial noise shaping:
+                        {t.sns}
                       </Range>
                     </div>
                     <div class={style.optionOneCell}>
@@ -253,11 +258,11 @@ export class Options extends Component<Props, State> {
                         value={errorDiffusion}
                         onInput={this._inputChange('errorDiffusion', 'number')}
                       >
-                        Error diffusion:
+                        {t.errorDiffusion}
                       </Range>
                     </div>
                     <label class={style.optionTextFirst}>
-                      Subsample chroma:
+                      {t.subsampleChroma}
                       <Select
                         value={uvMode}
                         onInput={this._inputChange('uvMode', 'number')}
@@ -269,7 +274,7 @@ export class Options extends Component<Props, State> {
                       </Select>
                     </label>
                     <label class={style.optionTextFirst}>
-                      Color space:
+                      {t.colorSpace}
                       <Select
                         value={colorSpace}
                         onInput={this._inputChange('colorSpace', 'number')}
@@ -280,7 +285,7 @@ export class Options extends Component<Props, State> {
                       </Select>
                     </label>
                     <label class={style.optionToggle}>
-                      Random matrix
+                      {t.randomMatrix}
                       <Checkbox
                         checked={useRandomMatrix}
                         onChange={this._inputChange(
@@ -303,7 +308,7 @@ export class Options extends Component<Props, State> {
             value={effort}
             onInput={this._inputChange('effort', 'number')}
           >
-            Effort:
+            {t.effort}
           </Range>
         </div>
       </form>

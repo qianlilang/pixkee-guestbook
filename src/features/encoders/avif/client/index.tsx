@@ -9,6 +9,7 @@ import Select from 'client/lazy-app/Compress/Options/Select';
 import Range from 'client/lazy-app/Compress/Options/Range';
 import linkState from 'linkstate';
 import Revealer from 'client/lazy-app/Compress/Options/Revealer';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 export const encode = (
   signal: AbortSignal,
@@ -20,6 +21,7 @@ export const encode = (
 interface Props {
   options: EncodeOptions;
   onChange(newOptions: EncodeOptions): void;
+  lang: Language;
 }
 
 interface State {
@@ -109,8 +111,8 @@ export class Options extends Component<Props, State> {
               ? formEl.checked
               : !!formEl.value
             : type === 'number'
-            ? Number(formEl.value)
-            : formEl.value;
+              ? Number(formEl.value)
+              : formEl.value;
 
         const newState: Partial<State> = {
           [prop]: newVal,
@@ -155,7 +157,7 @@ export class Options extends Component<Props, State> {
   };
 
   render(
-    _: Props,
+    { lang }: Props,
     {
       effort,
       lossless,
@@ -173,10 +175,13 @@ export class Options extends Component<Props, State> {
       enableSharpYUV,
     }: State,
   ) {
+    const t = translations[lang].avif;
+    const tMoz = translations[lang].mozJPEG;
+
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Lossless
+          {t.lossless}
           <Checkbox
             checked={lossless}
             onChange={this._inputChange('lossless', 'boolean')}
@@ -191,7 +196,7 @@ export class Options extends Component<Props, State> {
                 value={quality}
                 onInput={this._inputChange('quality', 'number')}
               >
-                Quality:
+                {t.quality}
               </Range>
             </div>
           )}
@@ -201,7 +206,7 @@ export class Options extends Component<Props, State> {
             checked={showAdvanced}
             onChange={linkState(this, 'showAdvanced')}
           />
-          Advanced settings
+          {tMoz.advancedSettings}
         </label>
         <Expander>
           {showAdvanced && (
@@ -210,7 +215,7 @@ export class Options extends Component<Props, State> {
                 {!lossless && (
                   <div>
                     <label class={style.optionTextFirst}>
-                      Subsample chroma:
+                      {t.subsampleChroma}
                       <Select
                         value={subsample}
                         onChange={this._inputChange('subsample', 'number')}
@@ -224,7 +229,7 @@ export class Options extends Component<Props, State> {
                     <Expander>
                       {subsample === 1 && (
                         <label class={style.optionToggle}>
-                          Sharp YUV Downsampling
+                          {t.sharpYUV}
                           <Checkbox
                             checked={enableSharpYUV}
                             onChange={this._inputChange(
@@ -236,7 +241,7 @@ export class Options extends Component<Props, State> {
                       )}
                     </Expander>
                     <label class={style.optionToggle}>
-                      Separate alpha quality
+                      {t.separateAlpha}
                       <Checkbox
                         checked={separateAlpha}
                         onChange={this._inputChange('separateAlpha', 'boolean')}
@@ -254,13 +259,13 @@ export class Options extends Component<Props, State> {
                               'number',
                             )}
                           >
-                            Alpha quality:
+                            {t.alphaQuality}
                           </Range>
                         </div>
                       )}
                     </Expander>
                     <label class={style.optionToggle}>
-                      Extra chroma compression
+                      {t.extraChroma}
                       <Checkbox
                         checked={chromaDeltaQ}
                         onChange={this._inputChange('chromaDeltaQ', 'boolean')}
@@ -273,7 +278,7 @@ export class Options extends Component<Props, State> {
                         value={sharpness}
                         onInput={this._inputChange('sharpness', 'number')}
                       >
-                        Sharpness:
+                        {t.sharpness}
                       </Range>
                     </div>
                     <div class={style.optionOneCell}>
@@ -283,11 +288,11 @@ export class Options extends Component<Props, State> {
                         value={denoiseLevel}
                         onInput={this._inputChange('denoiseLevel', 'number')}
                       >
-                        Noise synthesis:
+                        {t.noiseSynthesis}
                       </Range>
                     </div>
                     <label class={style.optionTextFirst}>
-                      Tuning:
+                      {t.tuning}
                       <Select
                         value={tune}
                         onChange={this._inputChange('tune', 'number')}
@@ -307,7 +312,7 @@ export class Options extends Component<Props, State> {
                   value={tileRows}
                   onInput={this._inputChange('tileRows', 'number')}
                 >
-                  Log2 of tile rows:
+                  {t.tileRows}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -317,7 +322,7 @@ export class Options extends Component<Props, State> {
                   value={tileCols}
                   onInput={this._inputChange('tileCols', 'number')}
                 >
-                  Log2 of tile cols:
+                  {t.tileCols}
                 </Range>
               </div>
             </div>
@@ -330,7 +335,7 @@ export class Options extends Component<Props, State> {
             value={effort}
             onInput={this._inputChange('effort', 'number')}
           >
-            Effort:
+            {t.effort}
           </Range>
         </div>
       </form>

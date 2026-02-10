@@ -47,7 +47,7 @@ interface State {
         total: number;
     };
     isZipping: boolean;
-    targetEncoder: EncoderType;
+    targetEncoder: EncoderType | 'identity';
 }
 
 export default class Batch extends Component<Props, State> {
@@ -56,6 +56,12 @@ export default class Batch extends Component<Props, State> {
 
     constructor(props: Props) {
         super(props);
+        let initialEncoder: EncoderType | 'identity' = 'identity';
+        try {
+            const saved = localStorage.getItem('pixkee-batch-format');
+            if (saved) initialEncoder = saved as EncoderType | 'identity';
+        } catch (e) { }
+
         this.state = {
             items: props.files.map((file) => ({
                 file,
@@ -69,7 +75,7 @@ export default class Batch extends Component<Props, State> {
                 total: props.files.length,
             },
             isZipping: false,
-            targetEncoder: 'webP',
+            targetEncoder: initialEncoder,
         };
     }
 
@@ -158,8 +164,19 @@ export default class Batch extends Component<Props, State> {
             let processorSettings: ProcessorState = { ...defaultProcessorState };
             const { targetEncoder } = this.state;
 
+            let actualEncoder = targetEncoder as EncoderType;
+
+            if (targetEncoder === 'identity') {
+                const type = item.file.type;
+                if (type === 'image/jpeg') actualEncoder = 'mozJPEG';
+                else if (type === 'image/png') actualEncoder = 'oxiPNG';
+                else if (type === 'image/webp') actualEncoder = 'webP';
+                else if (type === 'image/avif') actualEncoder = 'avif';
+                else actualEncoder = 'webP'; // Fallback
+            }
+
             // Apply specific processor settings if needed (e.g. quantization for PNG-like)
-            if (targetEncoder === 'oxiPNG' || targetEncoder === 'browserPNG') {
+            if (actualEncoder === 'oxiPNG' || actualEncoder === 'browserPNG') {
                 processorSettings = {
                     ...defaultProcessorState,
                     quantize: {
@@ -173,18 +190,18 @@ export default class Batch extends Component<Props, State> {
 
             // Get default options for the selected encoder
             // @ts-ignore
-            const defaultOptions = encoderMap[targetEncoder].meta.defaultOptions;
+            const defaultOptions = encoderMap[actualEncoder].meta.defaultOptions;
 
             encoderSettings = {
-                type: targetEncoder,
+                type: actualEncoder,
                 options: { ...defaultOptions },
             } as EncoderState;
 
             // Override specific defaults if needed to match "Aggressive" behavior
-            if (targetEncoder === 'webP') {
+            if (actualEncoder === 'webP') {
                 // @ts-ignore
                 encoderSettings.options.quality = 75;
-            } else if (targetEncoder === 'mozJPEG') {
+            } else if (actualEncoder === 'mozJPEG') {
                 // @ts-ignore
                 encoderSettings.options.quality = 75;
             }
@@ -280,8 +297,10 @@ export default class Batch extends Component<Props, State> {
             document.body.appendChild(link);
             link.click();
             document.body.removeChild(link);
+            document.body.removeChild(link);
         } catch (err) {
-            this.props.showSnack('Failed to create ZIP');
+            const t = translations[this.props.lang].batch;
+            this.props.showSnack(t.zipError);
         } finally {
             this.setState({ isZipping: false });
         }
@@ -317,7 +336,8 @@ export default class Batch extends Component<Props, State> {
                         <select
                             value={this.state.targetEncoder}
                             onChange={(e) => {
-                                const newEncoder = (e.target as HTMLSelectElement).value as EncoderType;
+                                const newEncoder = (e.target as HTMLSelectElement).value as EncoderType | 'identity';
+                                localStorage.setItem('pixkee-batch-format', newEncoder);
                                 this.setState({ targetEncoder: newEncoder });
                                 // Reset items to pending and re-process
                                 // Note: In a real app we might want to only re-process done items or better yet, proper queue management.
@@ -352,6 +372,7 @@ export default class Batch extends Component<Props, State> {
                                 outline: 'none'
                             }}
                         >
+                            <option value="identity">{t.original}</option>
                             <option value="webP">{encoderMap.webP.meta.label}</option>
                             <option value="mozJPEG">{encoderMap.mozJPEG.meta.label}</option>
                             <option value="oxiPNG">{encoderMap.oxiPNG.meta.label}</option>
@@ -405,7 +426,9 @@ export default class Batch extends Component<Props, State> {
                                 <span class={style.formatBadge}>
                                     {item.compressedFile
                                         ? item.compressedFile.name.split('.').pop()
-                                        : encoderMap[this.state.targetEncoder].meta.extension}
+                                        : this.state.targetEncoder === 'identity'
+                                            ? item.file.name.split('.').pop()
+                                            : encoderMap[this.state.targetEncoder].meta.extension}
                                 </span>
                                 <span class={style.fileSizeOriginal}>{this.formatSize(item.originalSize)}</span>
                             </div>

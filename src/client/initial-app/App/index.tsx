@@ -1,7 +1,7 @@
 import type { FileDropEvent } from 'file-drop-element';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import type { SnackOptions } from 'shared/custom-els/snack-bar';
-import { Language } from 'client/lazy-app/i18n';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 import { h, Component } from 'preact';
 
@@ -106,7 +106,30 @@ export default class App extends Component<Props, State> {
     });
 
     window.addEventListener('popstate', this.onPopState);
+    window.addEventListener('paste' as any, this.onPaste as EventListener);
   }
+
+  private onPaste = (e: Event) => {
+    const event = e as ClipboardEvent;
+    const files = event.clipboardData?.files;
+    if (files && files.length > 0) {
+      event.preventDefault();
+      if (files.length === 1) {
+        const file = files[0];
+        this.openEditor();
+        this.setState({ file });
+      } else {
+        let selectedFiles = Array.from(files);
+        if (selectedFiles.length > 30) {
+          const t = translations[this.state.lang].batch;
+          this.showSnack(t.batchLimit);
+          selectedFiles = selectedFiles.slice(0, 30);
+        }
+        this.loadBatch();
+        this.setState({ files: selectedFiles });
+      }
+    }
+  };
 
   private onFileDrop = ({ files }: FileDropEvent) => {
     if (!files || files.length === 0) return;
@@ -115,15 +138,25 @@ export default class App extends Component<Props, State> {
       this.openEditor();
       this.setState({ file });
     } else {
+      let selectedFiles = Array.from(files);
+      if (selectedFiles.length > 30) {
+        this.showSnack('Batch limit is 30 files. Processing first 30.');
+        selectedFiles = selectedFiles.slice(0, 30);
+      }
       this.loadBatch();
-      this.setState({ files: Array.from(files) });
+      this.setState({ files: selectedFiles });
     }
   };
 
   private onIntroPickFile = (files: File[] | File) => {
     if (Array.isArray(files)) {
+      let selectedFiles = files;
+      if (selectedFiles.length > 30) {
+        this.showSnack('Batch limit is 30 files. Processing first 30.');
+        selectedFiles = selectedFiles.slice(0, 30);
+      }
       this.loadBatch();
-      this.setState({ files });
+      this.setState({ files: selectedFiles });
     } else {
       this.openEditor();
       this.setState({ file: files });

@@ -1,6 +1,7 @@
 import { h, Component } from 'preact';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
 import Range from 'client/lazy-app/Compress/Options/Range';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 interface EncodeOptions {
   quality: number;
@@ -9,6 +10,7 @@ interface EncodeOptions {
 interface Props {
   options: EncodeOptions;
   onChange(newOptions: EncodeOptions): void;
+  lang: Language;
 }
 
 interface QualityOptionArg {
@@ -21,7 +23,7 @@ type Constructor<T extends {} = {}> = new (...args: any[]) => T;
 
 // TypeScript requires an exported type for returned classes. This serves as the
 // type for the class returned by `qualityOption`.
-export interface QualityOptionsInterface extends Component<Props, {}> {}
+export interface QualityOptionsInterface extends Component<Props, {}> { }
 
 export function qualityOption(
   opts: QualityOptionArg = {},
@@ -34,7 +36,9 @@ export function qualityOption(
       this.props.onChange({ quality: Number(el.value) });
     };
 
-    render({ options }: Props) {
+    render({ options, lang }: Props) {
+      const t = translations[lang].avif;
+
       return (
         <div class={style.optionsSection}>
           <div class={style.optionOneCell}>
@@ -46,7 +50,7 @@ export function qualityOption(
               value={options.quality}
               onInput={this.onChange}
             >
-              Quality:
+              {t.quality}
             </Range>
           </div>
         </div>

@@ -124,7 +124,9 @@ const translations = {
     heroSubtitle: 'The ultimate image optimizer. Reduce file sizes without losing quality.',
     dropText: 'Drop image here',
     browseText: 'or click to browse',
-    pasteText: 'or paste from clipboard',
+    pasteText: 'or paste from clipboard (Ctrl+V)',
+    clipboardNoPermission: 'No permission to access clipboard',
+    clipboardNoImage: 'No image found in the clipboard',
     sampleLabel: 'Or try a sample:',
     featuresTitle: 'Why Choose Pixkee?',
     howItWorksTitle: 'How It Works',
@@ -159,7 +161,9 @@ const translations = {
     heroSubtitle: '极致的图片优化工具。在不损失画质的情况下大幅减小文件体积。',
     dropText: '拖拽图片到这里',
     browseText: '或点击上传',
-    pasteText: '或从剪贴板粘贴',
+    pasteText: '或从剪贴板粘贴 (Ctrl+V)',
+    clipboardNoPermission: '没有剪贴板访问权限',
+    clipboardNoImage: '剪贴板中没有找到图片',
     sampleLabel: '或者试试示例图片：',
     featuresTitle: '为什么选择 Pixkee？',
     howItWorksTitle: '工作流程',
@@ -250,16 +254,17 @@ export default class Intro extends Component<Props, State> {
   };
 
   private onPasteClick = async () => {
+    const t = translations[this.props.lang];
     let clipboardItems: ClipboardItem[];
     try {
       clipboardItems = await navigator.clipboard.read();
     } catch (err) {
-      this.props.showSnack!(`No permission to access clipboard`);
+      this.props.showSnack!(t.clipboardNoPermission);
       return;
     }
     const blob = await getImageClipboardItem(clipboardItems);
     if (!blob) {
-      this.props.showSnack!(`No image found in the clipboard`);
+      this.props.showSnack!(t.clipboardNoImage);
       return;
     }
     this.props.onFile!(new File([blob], 'image.unknown'));
@@ -327,7 +332,7 @@ export default class Intro extends Component<Props, State> {
                 </svg>
               </div>
               <p class={style.uploadText}>
-                <strong>{t.dropText}</strong> {t.browseText}
+                <strong>{t.dropText}</strong> {t.browseText} <span style={{ marginLeft: 4, opacity: 0.5, fontSize: '0.9em' }}>(1-30)</span>
               </p>
               {supportsClipboardAPI && (
                 <button class={style.pasteButton} onClick={(e) => { e.stopPropagation(); this.onPasteClick(); }}>
@@ -367,10 +372,10 @@ export default class Intro extends Component<Props, State> {
               </div>
             </div>
           </div>
-        </section>
+        </section >
 
         {/* Features Section */}
-        <section class={style.features}>
+        < section class={style.features}>
           <div class={style.container}>
             <h2 class={style.sectionTitle}>{t.featuresTitle}</h2>
             <div class={style.featureGrid}>
@@ -383,10 +388,10 @@ export default class Intro extends Component<Props, State> {
               ))}
             </div>
           </div>
-        </section>
+        </section >
 
         {/* How It Works */}
-        <section class={style.howItWorks}>
+        < section class={style.howItWorks}>
           <div class={style.container}>
             <h2 class={style.sectionTitle}>{t.howItWorksTitle}</h2>
             <div class={style.stepsGrid}>
@@ -400,10 +405,10 @@ export default class Intro extends Component<Props, State> {
               ))}
             </div>
           </div>
-        </section>
+        </section >
 
         {/* Supported Formats */}
-        <section class={style.formats}>
+        < section class={style.formats}>
           <div class={style.container}>
             <h2 class={style.sectionTitle}>{t.formatsTitle}</h2>
             <div class={style.formatGrid}>
@@ -414,10 +419,10 @@ export default class Intro extends Component<Props, State> {
               ))}
             </div>
           </div>
-        </section>
+        </section >
 
         {/* Benefits Section (Small / Simple / Secure) */}
-        <section class={style.benefits}>
+        < section class={style.benefits}>
           <div class={style.container}>
             <div class={style.benefitCard}>
               <div class={style.benefitImage}>
@@ -449,17 +454,17 @@ export default class Intro extends Component<Props, State> {
               </div>
             </div>
           </div>
-        </section>
+        </section >
 
         {/* Footer */}
-        <footer class={style.footer}>
+        < footer class={style.footer}>
           <div class={style.container}>
             <p>{t.footer}</p>
           </div>
-        </footer>
+        </footer >
 
         <snack-bar ref={linkRef(this, 'snackbar')} />
-      </div>
+      </div >
     );
   }
 }

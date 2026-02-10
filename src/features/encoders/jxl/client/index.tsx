@@ -6,6 +6,7 @@ import * as style from 'client/lazy-app/Compress/Options/style.css';
 import Range from 'client/lazy-app/Compress/Options/Range';
 import Checkbox from 'client/lazy-app/Compress/Options/Checkbox';
 import Expander from 'client/lazy-app/Compress/Options/Expander';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 export const encode = (
   signal: AbortSignal,
@@ -17,6 +18,7 @@ export const encode = (
 interface Props {
   options: EncodeOptions;
   onChange(newOptions: EncodeOptions): void;
+  lang: Language;
 }
 
 interface State {
@@ -114,7 +116,7 @@ export class Options extends Component<Props, State> {
   };
 
   render(
-    {}: Props,
+    { lang }: Props,
     {
       effort,
       quality,
@@ -128,12 +130,15 @@ export class Options extends Component<Props, State> {
       alternativeLossy,
     }: State,
   ) {
+    const t = translations[lang].jxl;
+    const tMoz = translations[lang].mozJPEG;
+
     // I'm rendering both lossy and lossless forms, as it becomes much easier when
     // gathering the data.
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Lossless
+          {t.lossless}
           <Checkbox
             name="lossless"
             checked={lossless}
@@ -143,7 +148,7 @@ export class Options extends Component<Props, State> {
         <Expander>
           {lossless && (
             <label class={style.optionToggle}>
-              Slight loss
+              {t.slightLoss}
               <Checkbox
                 name="slightLoss"
                 checked={slightLoss}
@@ -163,11 +168,11 @@ export class Options extends Component<Props, State> {
                   value={quality}
                   onInput={this._inputChange('quality', 'number')}
                 >
-                  Quality:
+                  {t.quality}
                 </Range>
               </div>
               <label class={style.optionToggle}>
-                Alternative lossy mode
+                {t.alternativeLossy}
                 <Checkbox
                   checked={quality < 7 ? true : alternativeLossy}
                   disabled={quality < 7}
@@ -175,7 +180,7 @@ export class Options extends Component<Props, State> {
                 />
               </label>
               <label class={style.optionToggle}>
-                Auto edge filter
+                {t.autoEdgeFilter}
                 <Checkbox
                   checked={autoEdgePreservingFilter}
                   onChange={this._inputChange(
@@ -196,7 +201,7 @@ export class Options extends Component<Props, State> {
                         'number',
                       )}
                     >
-                      Edge preserving filter:
+                      {t.edgeFilter}
                     </Range>
                   </div>
                 )}
@@ -208,7 +213,7 @@ export class Options extends Component<Props, State> {
                   value={decodingSpeedTier}
                   onInput={this._inputChange('decodingSpeedTier', 'number')}
                 >
-                  Optimise for decoding speed (worse compression):
+                  {t.decodingSpeed}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -219,14 +224,14 @@ export class Options extends Component<Props, State> {
                   value={photonNoiseIso}
                   onInput={this._inputChange('photonNoiseIso', 'number')}
                 >
-                  Noise equivalent to ISO:
+                  {t.noiseIso}
                 </Range>
               </div>
             </div>
           )}
         </Expander>
         <label class={style.optionToggle}>
-          Progressive rendering
+          {tMoz.progressiveRendering}
           <Checkbox
             name="progressive"
             checked={progressive}
@@ -240,7 +245,7 @@ export class Options extends Component<Props, State> {
             value={effort}
             onInput={this._inputChange('effort', 'number')}
           >
-            Effort:
+            {t.effort}
           </Range>
         </div>
       </form>

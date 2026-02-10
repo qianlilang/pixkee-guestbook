@@ -1,11 +1,15 @@
-import { inputFieldChecked } from 'client/lazy-app/util';
 import { EncodeOptions } from '../shared/meta';
 import type WorkerBridge from 'client/lazy-app/worker-bridge';
 import { h, Component } from 'preact';
-import { inputFieldValueAsNumber, preventDefault } from 'client/lazy-app/util';
+import {
+  inputFieldChecked,
+  inputFieldValueAsNumber,
+  preventDefault,
+} from 'client/lazy-app/util';
 import * as style from 'client/lazy-app/Compress/Options/style.css';
 import Range from 'client/lazy-app/Compress/Options/Range';
 import Checkbox from 'client/lazy-app/Compress/Options/Checkbox';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 export async function encode(
   signal: AbortSignal,
@@ -19,6 +23,7 @@ export async function encode(
 type Props = {
   options: EncodeOptions;
   onChange(newOptions: EncodeOptions): void;
+  lang: Language;
 };
 
 export class Options extends Component<Props, {}> {
@@ -34,11 +39,18 @@ export class Options extends Component<Props, {}> {
     this.props.onChange(options);
   };
 
-  render({ options }: Props) {
+  // Wait, I am replacing the whole file content or chunks?
+  // The Instruction says "EndLine: 64". The file is 64 lines long.
+  // So I am replacing the whole file potentially.
+
+  // Let's use `inputFieldChecked` properly.
+
+  render({ options, lang }: Props) {
+    const t = translations[lang].oxiPNG;
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Interlace
+          {t.interlace}
           <Checkbox
             name="interlace"
             checked={options.interlace}
@@ -54,7 +66,7 @@ export class Options extends Component<Props, {}> {
             value={options.level}
             onInput={this.onChange}
           >
-            Effort:
+            {t.effort}
           </Range>
         </div>
       </form>

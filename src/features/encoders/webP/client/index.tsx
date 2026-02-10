@@ -13,6 +13,7 @@ import Checkbox from 'client/lazy-app/Compress/Options/Checkbox';
 import Expander from 'client/lazy-app/Compress/Options/Expander';
 import Select from 'client/lazy-app/Compress/Options/Select';
 import Revealer from 'client/lazy-app/Compress/Options/Revealer';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 export const encode = (
   signal: AbortSignal,
@@ -31,6 +32,7 @@ const enum WebPImageHint {
 interface Props {
   options: EncodeOptions;
   onChange(newOptions: EncodeOptions): void;
+  lang: Language;
 }
 
 interface State {
@@ -156,6 +158,7 @@ export class Options extends Component<Props, State> {
   };
 
   private _losslessSpecificOptions(options: EncodeOptions) {
+    const t = translations[this.props.lang].webP;
     return (
       <div key="lossless">
         <div class={style.optionOneCell}>
@@ -166,7 +169,7 @@ export class Options extends Component<Props, State> {
             value={determineLosslessQuality(options.quality, options.method)}
             onInput={this.onChange}
           >
-            Effort:
+            {t.effort}
           </Range>
         </div>
         <div class={style.optionOneCell}>
@@ -177,11 +180,11 @@ export class Options extends Component<Props, State> {
             value={'' + (100 - options.near_lossless)}
             onInput={this.onChange}
           >
-            Slight loss:
+            {t.nearLossless}
           </Range>
         </div>
         <label class={style.optionToggle}>
-          Discrete tone image
+          {t.discreteTone}
           {/*
             Although there are 3 different kinds of image hint, webp only
             seems to do something with the 'graph' type, and I don't really
@@ -199,6 +202,8 @@ export class Options extends Component<Props, State> {
 
   private _lossySpecificOptions(options: EncodeOptions) {
     const { showAdvanced } = this.state;
+    const t = translations[this.props.lang].webP;
+    const tMoz = translations[this.props.lang].mozJPEG; // reuse advancedSettings
 
     return (
       <div key="lossy">
@@ -210,7 +215,7 @@ export class Options extends Component<Props, State> {
             value={options.method}
             onInput={this.onChange}
           >
-            Effort:
+            {t.effort}
           </Range>
         </div>
         <div class={style.optionOneCell}>
@@ -222,7 +227,7 @@ export class Options extends Component<Props, State> {
             value={options.quality}
             onInput={this.onChange}
           >
-            Quality:
+            {t.quality}
           </Range>
         </div>
         <label class={style.optionReveal}>
@@ -230,13 +235,13 @@ export class Options extends Component<Props, State> {
             checked={showAdvanced}
             onChange={linkState(this, 'showAdvanced')}
           />
-          Advanced settings
+          {tMoz.advancedSettings}
         </label>
         <Expander>
           {showAdvanced ? (
             <div>
               <label class={style.optionToggle}>
-                Compress alpha
+                {t.alphaCompression}
                 <Checkbox
                   name="alpha_compression"
                   checked={!!options.alpha_compression}
@@ -251,7 +256,7 @@ export class Options extends Component<Props, State> {
                   value={options.alpha_quality}
                   onInput={this.onChange}
                 >
-                  Alpha quality:
+                  {t.alphaQuality}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -262,11 +267,11 @@ export class Options extends Component<Props, State> {
                   value={options.alpha_filtering}
                   onInput={this.onChange}
                 >
-                  Alpha filter quality:
+                  {t.alphaFiltering}
                 </Range>
               </div>
               <label class={style.optionToggle}>
-                Auto adjust filter strength
+                {t.autoFilter}
                 <Checkbox
                   name="autofilter"
                   checked={!!options.autofilter}
@@ -283,13 +288,13 @@ export class Options extends Component<Props, State> {
                       value={options.filter_strength}
                       onInput={this.onChange}
                     >
-                      Filter strength:
+                      {t.filterStrength}
                     </Range>
                   </div>
                 )}
               </Expander>
               <label class={style.optionToggle}>
-                Strong filter
+                {t.filterType}
                 <Checkbox
                   name="filter_type"
                   checked={!!options.filter_type}
@@ -304,11 +309,11 @@ export class Options extends Component<Props, State> {
                   value={7 - options.filter_sharpness}
                   onInput={this.onChange}
                 >
-                  Filter sharpness:
+                  {t.filterSharpness}
                 </Range>
               </div>
               <label class={style.optionToggle}>
-                Sharp RGB→YUV conversion
+                {t.sharpYUV}
                 <Checkbox
                   name="use_sharp_yuv"
                   checked={!!options.use_sharp_yuv}
@@ -323,7 +328,7 @@ export class Options extends Component<Props, State> {
                   value={options.pass}
                   onInput={this.onChange}
                 >
-                  Passes:
+                  {t.pass}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -334,11 +339,11 @@ export class Options extends Component<Props, State> {
                   value={options.sns_strength}
                   onInput={this.onChange}
                 >
-                  Spatial noise shaping:
+                  {t.snsStrength}
                 </Range>
               </div>
               <label class={style.optionTextFirst}>
-                Preprocess:
+                {t.preprocessing}
                 <Select
                   name="preprocessing"
                   value={options.preprocessing}
@@ -357,7 +362,7 @@ export class Options extends Component<Props, State> {
                   value={options.segments}
                   onInput={this.onChange}
                 >
-                  Segments:
+                  {t.segments}
                 </Range>
               </div>
               <div class={style.optionOneCell}>
@@ -368,7 +373,7 @@ export class Options extends Component<Props, State> {
                   value={options.partitions}
                   onInput={this.onChange}
                 >
-                  Partitions:
+                  {t.partitions}
                 </Range>
               </div>
             </div>
@@ -378,13 +383,14 @@ export class Options extends Component<Props, State> {
     );
   }
 
-  render({ options }: Props) {
+  render({ options, lang }: Props) {
+    const t = translations[lang].webP;
     // I'm rendering both lossy and lossless forms, as it becomes much easier when
     // gathering the data.
     return (
       <form class={style.optionsSection} onSubmit={preventDefault}>
         <label class={style.optionToggle}>
-          Lossless
+          {t.lossless}
           <Checkbox
             name="lossless"
             checked={!!options.lossless}
@@ -395,7 +401,7 @@ export class Options extends Component<Props, State> {
           ? this._losslessSpecificOptions(options)
           : this._lossySpecificOptions(options)}
         <label class={style.optionToggle}>
-          Preserve transparent data
+          {t.exact}
           <Checkbox
             name="exact"
             checked={!!options.exact}
