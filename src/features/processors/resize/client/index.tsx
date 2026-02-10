@@ -26,6 +26,7 @@ import { linkRef } from 'shared/prerendered-app/util';
 import Select from 'client/lazy-app/Compress/Options/Select';
 import Expander from 'client/lazy-app/Compress/Options/Expander';
 import Checkbox from 'client/lazy-app/Compress/Options/Checkbox';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 /**
  * Return whether a set of options are worker resize options.
@@ -103,6 +104,7 @@ interface Props {
   inputHeight: number;
   options: ResizeOptions;
   onChange(newOptions: ResizeOptions): void;
+  lang: Language;
 }
 
 interface State {
@@ -224,7 +226,8 @@ export class Options extends Component<Props, State> {
     this.reportOptions();
   };
 
-  render({ options, isVector }: Props, { maintainAspect }: State) {
+  render({ options, isVector, lang }: Props, { maintainAspect }: State) {
+    const t = translations[lang].resize;
     return (
       <form
         ref={linkRef(this, 'form')}
@@ -232,35 +235,35 @@ export class Options extends Component<Props, State> {
         onSubmit={preventDefault}
       >
         <label class={style.optionTextFirst}>
-          Method:
+          {t.method}
           <Select
             name="resizeMethod"
             value={options.method}
             onChange={this.onChange}
           >
-            {isVector && <option value="vector">Vector</option>}
-            <option value="lanczos3">Lanczos3</option>
-            <option value="mitchell">Mitchell</option>
-            <option value="catrom">Catmull-Rom</option>
-            <option value="triangle">Triangle (bilinear)</option>
-            <option value="hqx">hqx (pixel art)</option>
-            <option value="browser-pixelated">Browser pixelated</option>
-            <option value="browser-low">Browser low quality</option>
-            <option value="browser-medium">Browser medium quality</option>
-            <option value="browser-high">Browser high quality</option>
+            {isVector && <option value="vector">{t.vector}</option>}
+            <option value="lanczos3">{t.lanczos3}</option>
+            <option value="mitchell">{t.mitchell}</option>
+            <option value="catrom">{t.catrom}</option>
+            <option value="triangle">{t.triangle}</option>
+            <option value="hqx">{t.hqx}</option>
+            <option value="browser-pixelated">{t.browserPixelated}</option>
+            <option value="browser-low">{t.browserLow}</option>
+            <option value="browser-medium">{t.browserMedium}</option>
+            <option value="browser-high">{t.browserHigh}</option>
           </Select>
         </label>
         <label class={style.optionTextFirst}>
-          Preset:
+          {t.preset}
           <Select value={this.getPreset()} onChange={this.onPresetChange}>
             {sizePresets.map((preset) => (
               <option value={preset}>{preset * 100}%</option>
             ))}
-            <option value="custom">Custom</option>
+            <option value="custom">{t.custom}</option>
           </Select>
         </label>
         <label class={style.optionTextFirst}>
-          Width:
+          {t.width}
           <input
             required
             class={style.textField}
@@ -272,7 +275,7 @@ export class Options extends Component<Props, State> {
           />
         </label>
         <label class={style.optionTextFirst}>
-          Height:
+          {t.height}
           <input
             required
             class={style.textField}
@@ -286,7 +289,7 @@ export class Options extends Component<Props, State> {
         <Expander>
           {isWorkerOptions(options) ? (
             <label class={style.optionToggle}>
-              Premultiply alpha channel
+              {t.premultiplyAlphaChannel}
               <Checkbox
                 name="premultiply"
                 checked={options.premultiply}
@@ -296,7 +299,7 @@ export class Options extends Component<Props, State> {
           ) : null}
           {isWorkerOptions(options) ? (
             <label class={style.optionToggle}>
-              Linear RGB
+              {t.linearRGB}
               <Checkbox
                 name="linearRGB"
                 checked={options.linearRGB}
@@ -306,7 +309,7 @@ export class Options extends Component<Props, State> {
           ) : null}
         </Expander>
         <label class={style.optionToggle}>
-          Maintain aspect ratio
+          {t.maintainAspectRatio}
           <Checkbox
             name="maintainAspect"
             checked={maintainAspect}
@@ -316,14 +319,14 @@ export class Options extends Component<Props, State> {
         <Expander>
           {maintainAspect ? null : (
             <label class={style.optionTextFirst}>
-              Fit method:
+              {t.fitMethod}
               <Select
                 name="fitMethod"
                 value={options.fitMethod}
                 onChange={this.onChange}
               >
-                <option value="stretch">Stretch</option>
-                <option value="contain">Contain</option>
+                <option value="stretch">{t.stretch}</option>
+                <option value="contain">{t.contain}</option>
               </Select>
             </label>
           )}
