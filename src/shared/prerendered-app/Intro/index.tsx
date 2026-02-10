@@ -108,8 +108,8 @@ interface Props {
   showSnack?: SnackBarElement['showSnackbar'];
   onFeedbackClick?: () => void;
   files?: File[];
-  lang: 'en' | 'zh';
-  setLang: (lang: 'en' | 'zh') => void;
+  lang: 'en' | 'zh' | 'ja' | 'ko' | 'es' | 'de' | 'fr';
+  setLang: (lang: 'en' | 'zh' | 'ja' | 'ko' | 'es' | 'de' | 'fr') => void;
   Batch?: typeof import('client/lazy-app/Batch').default;
 }
 interface State {
@@ -191,6 +191,191 @@ const translations = {
       pricing: '价格',
       login: '登录',
     }
+  },
+  ja: {
+    heroTitle: '画像圧縮',
+    heroHighlight: '瞬時に完了',
+    heroSubtitle: '究極の画像最適化ツール。画質を損なわずにファイルサイズを削減。',
+    dropText: 'ここに画像をドロップ',
+    browseText: 'またはクリックして選択',
+    pasteText: 'またはクリップボードから貼り付け (Ctrl+V)',
+    clipboardNoPermission: 'クリップボードへのアクセス権がありません',
+    clipboardNoImage: 'クリップボードに画像が見つかりません',
+    sampleLabel: 'またはサンプルを試す：',
+    featuresTitle: 'Pixkeeを選ぶ理由',
+    howItWorksTitle: '使い方',
+    formatsTitle: '対応フォーマット',
+    footer: '© 2026 Pixkee',
+    steps: [
+      { title: 'アップロード', description: '画像をドロップまたは選択' },
+      { title: '調整', description: 'フォーマットと品質を選択' },
+      { title: 'ダウンロード', description: '最適化された画像を保存' },
+    ],
+    features: [
+      { title: 'スマート圧縮', description: '高度なアルゴリズムで画質を維持しながらサイズを削減。' },
+      { title: '多形式対応', description: 'JPEG, PNG, WebP, AVIF などのフォーマット変換に対応。' },
+      { title: 'プライバシー優先', description: 'すべての処理はローカルで行われます。画像がサーバーに送信されることはありません。' },
+      { title: 'リアルタイムプレビュー', description: '元の画像と圧縮後の画像を並べて比較できます。' },
+    ],
+    benefits: {
+      fast: { title: '高速', desc: 'WebAssemblyによる超高速圧縮。ブラウザ内で数秒で画像を処理します。' },
+      light: { title: '軽量', desc: '画質劣化を目立たせずにファイルサイズを大幅に削減。Web、アプリ、メールに最適です。' },
+      secure: { title: '安全', desc: 'プライバシーが心配ですか？Pixkeeはすべてローカルで処理するため、画像がデバイス外に出ることはありません。' },
+    },
+    nav: {
+      guestbook: 'ゲストブック',
+      product: '製品',
+      pricing: '価格',
+      login: 'ログイン',
+    }
+  },
+  ko: {
+    heroTitle: '이미지 압축',
+    heroHighlight: '신속하게',
+    heroSubtitle: '궁극의 이미지 최적화 도구. 품질 저하 없이 파일 크기를 줄이세요.',
+    dropText: '이미지를 여기에 드롭',
+    browseText: '또는 클릭하여 선택',
+    pasteText: '또는 클립보드에서 붙여넣기 (Ctrl+V)',
+    clipboardNoPermission: '클립보드 접근 권한이 없습니다',
+    clipboardNoImage: '클립보드에서 이미지를 찾을 수 없습니다',
+    sampleLabel: '또는 샘플 이미지 사용:',
+    featuresTitle: '왜 Pixkee 인가요?',
+    howItWorksTitle: '사용 방법',
+    formatsTitle: '지원 형식',
+    footer: '© 2026 Pixkee',
+    steps: [
+      { title: '업로드', description: '이미지를 드롭하거나 선택' },
+      { title: '조정', description: '형식 및 품질 선택' },
+      { title: '다운로드', description: '최적화된 이미지 저장' },
+    ],
+    features: [
+      { title: '스마트 압축', description: '고급 알고리즘으로 품질을 유지하면서 파일 크기를 줄입니다.' },
+      { title: '다양한 형식 지원', description: 'JPEG, PNG, WebP, AVIF 등 간의 변환을 지원합니다.' },
+      { title: '프라이버시 우선', description: '모든 처리는 로컬에서 이루어집니다. 이미지가 기기를 떠나지 않습니다.' },
+      { title: '실시간 미리보기', description: '원본과 압축된 이미지를 나란히 비교하세요.' },
+    ],
+    benefits: {
+      fast: { title: '빠름', desc: 'WebAssembly로 구동되는 빠른 압축 속도. 브라우저에서 몇 초 만에 이미지를 처리합니다.' },
+      light: { title: '가벼움', desc: '눈에 띄는 품질 저하 없이 파일 크기를 대폭 줄입니다. 웹, 모바일 앱, 이메일에 적합합니다.' },
+      secure: { title: '보안', desc: '프라이버시가 걱정되시나요? Pixkee는 모든 작업을 로컬에서 수행하므로 이미지가 안전합니다.' },
+    },
+    nav: {
+      guestbook: '방명록',
+      product: '제품',
+      pricing: '가격',
+      login: '로그인',
+    }
+  },
+  es: {
+    heroTitle: 'Comprimir imágenes',
+    heroHighlight: 'al instante',
+    heroSubtitle: 'El optimizador de imágenes definitivo. Reduce el tamaño sin perder calidad.',
+    dropText: 'Arrastra imagen aquí',
+    browseText: 'o clic para buscar',
+    pasteText: 'o pegar desde portapapeles (Ctrl+V)',
+    clipboardNoPermission: 'Sin permiso para acceder al portapapeles',
+    clipboardNoImage: 'No se encontró imagen en el portapapeles',
+    sampleLabel: 'O prueba una muestra:',
+    featuresTitle: '¿Por qué elegir Pixkee?',
+    howItWorksTitle: 'Cómo funciona',
+    formatsTitle: 'Formatos soportados',
+    footer: '© 2026 Pixkee',
+    steps: [
+      { title: 'Subir', description: 'Arrastra o selecciona tu imagen' },
+      { title: 'Ajustar', description: 'Elige formato y calidad' },
+      { title: 'Descargar', description: 'Guarda tu imagen optimizada' },
+    ],
+    features: [
+      { title: 'Compresión inteligente', description: 'Algoritmos avanzados reducen el tamaño preservando la calidad.' },
+      { title: 'Soporte multi-formato', description: 'Convierte entre JPEG, PNG, WebP, AVIF y más.' },
+      { title: 'Privacidad primero', description: 'Todo el procesamiento es local. Tus imágenes nunca salen de tu dispositivo.' },
+      { title: 'Vista previa real', description: 'Compara imágenes originales y comprimidas lado a lado.' },
+    ],
+    benefits: {
+      fast: { title: 'Rápido', desc: 'Compresión ultrarrápida con WebAssembly. Procesa imágenes en segundos en tu navegador.' },
+      light: { title: 'Ligero', desc: 'Reduce drásticamente el tamaño sin pérdida visible. Perfecto para web, apps y email.' },
+      secure: { title: 'Seguro', desc: '¿Preocupado por la privacidad? Pixkee hace todo localmente, tus imágenes están seguras.' },
+    },
+    nav: {
+      guestbook: 'Libro de visitas',
+      product: 'Producto',
+      pricing: 'Precios',
+      login: 'Entrar',
+    }
+  },
+  de: {
+    heroTitle: 'Bilder komprimieren',
+    heroHighlight: 'sofort',
+    heroSubtitle: 'Der ultimative Bildoptimierer. Dateigröße reduzieren ohne Qualitätsverlust.',
+    dropText: 'Bild hier ablegen',
+    browseText: 'oder klicken zum Suchen',
+    pasteText: 'oder aus Zwischenablage einfügen (Ctrl+V)',
+    clipboardNoPermission: 'Kein Zugriff auf Zwischenablage',
+    clipboardNoImage: 'Kein Bild in der Zwischenablage gefunden',
+    sampleLabel: 'Oder versuchen Sie ein Beispiel:',
+    featuresTitle: 'Warum Pixkee?',
+    howItWorksTitle: 'Wie es funktioniert',
+    formatsTitle: 'Unterstützte Formate',
+    footer: '© 2026 Pixkee',
+    steps: [
+      { title: 'Hochladen', description: 'Bild ablegen oder auswählen' },
+      { title: 'Anpassen', description: 'Format und Qualität wählen' },
+      { title: 'Download', description: 'Optimiertes Bild speichern' },
+    ],
+    features: [
+      { title: 'Smarte Kompression', description: 'Fortschrittliche Algorithmen reduzieren Größe bei erhaltener Qualität.' },
+      { title: 'Multi-Format', description: 'Konvertieren zwischen JPEG, PNG, WebP, AVIF und mehr.' },
+      { title: 'Privatsphäre', description: 'Alles passiert lokal. Ihre Bilder verlassen nie Ihr Gerät.' },
+      { title: 'Echtzeit-Vorschau', description: 'Vergleichen Sie Original und Ergebnis Seite an Seite.' },
+    ],
+    benefits: {
+      fast: { title: 'Schnell', desc: 'Blitzschnelle Kompression dank WebAssembly. Bilder in Sekunden verarbeiten.' },
+      light: { title: 'Leicht', desc: 'Dateigröße drastisch reduzieren ohne sichtbaren Verlust. Perfekt für Web und Mail.' },
+      secure: { title: 'Sicher', desc: 'Sorgen um Privatsphäre? Pixkee arbeitet lokal, Ihre Bilder bleiben bei Ihnen.' },
+    },
+    nav: {
+      guestbook: 'Gästebuch',
+      product: 'Produkt',
+      pricing: 'Preise',
+      login: 'Login',
+    }
+  },
+  fr: {
+    heroTitle: 'Compresser images',
+    heroHighlight: 'instantanément',
+    heroSubtitle: 'L\'optimiseur d\'image ultime. Réduisez la taille sans perdre en qualité.',
+    dropText: 'Déposez l\'image ici',
+    browseText: 'ou cliquez pour parcourir',
+    pasteText: 'ou coller (Ctrl+V)',
+    clipboardNoPermission: 'Pas de permission presse-papiers',
+    clipboardNoImage: 'Aucune image trouvée',
+    sampleLabel: 'Ou essayez un exemple :',
+    featuresTitle: 'Pourquoi Pixkee ?',
+    howItWorksTitle: 'Comment ça marche',
+    formatsTitle: 'Formats supportés',
+    footer: '© 2026 Pixkee',
+    steps: [
+      { title: 'Téléverser', description: 'Déposez ou sélectionnez votre image' },
+      { title: 'Ajuster', description: 'Choisissez format et qualité' },
+      { title: 'Télécharger', description: 'Enregistrez votre image optimisée' },
+    ],
+    features: [
+      { title: 'Compression intelligente', description: 'Des algorithmes avancés réduisent la taille en préservant la qualité.' },
+      { title: 'Multi-formats', description: 'Convertissez entre JPEG, PNG, WebP, AVIF et plus.' },
+      { title: 'Confidentialité', description: 'Tout le traitement est local. Vos images ne quittent jamais votre appareil.' },
+      { title: 'Aperçu temps réel', description: 'Comparez l\'original et le résultat côte à côte.' },
+    ],
+    benefits: {
+      fast: { title: 'Rapide', desc: 'Compression ultra-rapide via WebAssembly. Traitez des images en quelques secondes.' },
+      light: { title: 'Léger', desc: 'Réduisez la taille sans perte visible. Parfait pour le web et les e-mails.' },
+      secure: { title: 'Sécurisé', desc: 'Soucieux de la vie privée ? Pixkee travaille localement, vos images restent en sécurité.' },
+    },
+    nav: {
+      guestbook: 'Livre d\'or',
+      product: 'Produit',
+      pricing: 'Tarifs',
+      login: 'Connexion',
+    }
   }
 };
 
@@ -207,7 +392,7 @@ export default class Intro extends Component<Props, State> {
     this.setState(prev => ({ isLangMenuOpen: !prev.isLangMenuOpen }));
   }
 
-  private setLang = (lang: 'en' | 'zh') => {
+  private setLang = (lang: 'en' | 'zh' | 'ja' | 'ko' | 'es' | 'de' | 'fr') => {
     this.props.setLang(lang);
     this.setState({ isLangMenuOpen: false });
   }
@@ -294,7 +479,7 @@ export default class Intro extends Component<Props, State> {
                     <line x1="2" y1="12" x2="22" y2="12"></line>
                     <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                   </svg>
-                  {lang === 'en' ? 'English' : '简体中文'}
+                  {lang === 'en' ? 'English' : lang === 'zh' ? '简体中文' : lang === 'ja' ? '日本語' : lang === 'ko' ? '한국어' : lang === 'es' ? 'Español' : lang === 'de' ? 'Deutsch' : 'Français'}
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style={{ marginLeft: 4 }}>
                     <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
@@ -303,6 +488,11 @@ export default class Intro extends Component<Props, State> {
                   <div class={style.langMenu}>
                     <button class={style.langMenuItem} onClick={() => this.setLang('en')}>English</button>
                     <button class={style.langMenuItem} onClick={() => this.setLang('zh')}>简体中文</button>
+                    <button class={style.langMenuItem} onClick={() => this.setLang('ja')}>日本語</button>
+                    <button class={style.langMenuItem} onClick={() => this.setLang('ko')}>한국어</button>
+                    <button class={style.langMenuItem} onClick={() => this.setLang('es')}>Español</button>
+                    <button class={style.langMenuItem} onClick={() => this.setLang('de')}>Deutsch</button>
+                    <button class={style.langMenuItem} onClick={() => this.setLang('fr')}>Français</button>
                   </div>
                 )}
               </div>
