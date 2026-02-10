@@ -41,7 +41,7 @@ import WorkerBridge from '../worker-bridge';
 import { resize } from 'features/processors/resize/client';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import { drawableToImageData } from '../util/canvas';
-import { Language } from 'client/lazy-app/i18n';
+import { Language, translations } from 'client/lazy-app/i18n';
 
 export type OutputType = EncoderType | 'identity';
 
@@ -321,6 +321,7 @@ export default class Compress extends Component<Props, State> {
   }
 
   private onCopyToOtherClick = async (index: 0 | 1) => {
+    const t = translations[this.props.lang].snack;
     const otherIndex = index ? 0 : 1;
     const oldSettings = this.state.sides[otherIndex];
     const newSettings = { ...this.state.sides[index] };
@@ -335,12 +336,12 @@ export default class Compress extends Component<Props, State> {
       sides: cleanSet(this.state.sides, otherIndex, newSettings),
     });
 
-    const result = await this.props.showSnack('Settings copied across', {
+    const result = await this.props.showSnack(t.settingsCopied, {
       timeout: 5000,
-      actions: ['undo', 'dismiss'],
+      actions: [t.undo, t.dismiss],
     });
 
-    if (result !== 'undo') return;
+    if (result !== t.undo) return;
 
     this.setState({
       sides: cleanSet(this.state.sides, otherIndex, oldSettings),
@@ -353,6 +354,7 @@ export default class Compress extends Component<Props, State> {
    * @returns
    */
   private onSaveSideSettingsClick = async (index: 0 | 1) => {
+    const t = translations[this.props.lang].snack;
     if (index === 0) {
       const leftSideSettings = JSON.stringify({
         encodedSettings: this.state.sides[index].encodedSettings,
@@ -361,9 +363,9 @@ export default class Compress extends Component<Props, State> {
       localStorage.setItem('leftSideSettings', leftSideSettings);
       // Firing an event when we save side settings in localstorage
       window.dispatchEvent(new CustomEvent('leftSideSettings'));
-      await this.props.showSnack('Left side settings saved', {
+      await this.props.showSnack(t.leftSaved, {
         timeout: 1500,
-        actions: ['dismiss'],
+        actions: [t.dismiss],
       });
       return;
     }
@@ -376,9 +378,9 @@ export default class Compress extends Component<Props, State> {
       localStorage.setItem('rightSideSettings', rightSideSettings);
       // Firing an event when we save side settings in localstorage
       window.dispatchEvent(new CustomEvent('rightSideSettings'));
-      await this.props.showSnack('Right side settings saved', {
+      await this.props.showSnack(t.rightSaved, {
         timeout: 1500,
-        actions: ['dismiss'],
+        actions: [t.dismiss],
       });
       return;
     }
@@ -391,6 +393,7 @@ export default class Compress extends Component<Props, State> {
    * @returns
    */
   private onImportSideSettingsClick = async (index: 0 | 1) => {
+    const t = translations[this.props.lang].snack;
     const leftSideSettingsString = localStorage.getItem('leftSideSettings');
     const rightSideSettingsString = localStorage.getItem('rightSideSettings');
 
@@ -403,11 +406,11 @@ export default class Compress extends Component<Props, State> {
       this.setState({
         sides: cleanSet(this.state.sides, index, newLeftSideSettings),
       });
-      const result = await this.props.showSnack('Left side settings imported', {
+      const result = await this.props.showSnack(t.leftImported, {
         timeout: 3000,
-        actions: ['undo', 'dismiss'],
+        actions: [t.undo, t.dismiss],
       });
-      if (result === 'undo') {
+      if (result === t.undo) {
         this.setState({
           sides: cleanSet(this.state.sides, index, oldLeftSideSettings),
         });
@@ -425,13 +428,13 @@ export default class Compress extends Component<Props, State> {
         sides: cleanSet(this.state.sides, index, newRightSideSettings),
       });
       const result = await this.props.showSnack(
-        'Right side settings imported',
+        t.rightImported,
         {
           timeout: 3000,
-          actions: ['undo', 'dismiss'],
+          actions: [t.undo, t.dismiss],
         },
       );
-      if (result === 'undo') {
+      if (result === t.undo) {
         this.setState({
           sides: cleanSet(this.state.sides, index, oldRightSideSettings),
         });
@@ -628,7 +631,7 @@ export default class Compress extends Component<Props, State> {
         });
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
-        this.props.showSnack(`Source decoding error: ${err}`);
+        this.props.showSnack(`${translations[this.props.lang].snack.sourceDecodingError} ${err}`);
         throw err;
       }
     } else {
@@ -687,7 +690,7 @@ export default class Compress extends Component<Props, State> {
       } catch (err) {
         if (err instanceof Error && err.name === 'AbortError') return;
         this.setState({ loading: false });
-        this.props.showSnack(`Preprocessing error: ${err}`);
+        this.props.showSnack(`${translations[this.props.lang].snack.preprocessingError} ${err}`);
         throw err;
       }
     } else {
