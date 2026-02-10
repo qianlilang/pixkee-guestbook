@@ -5,19 +5,6 @@
             "destination": "/index.html"
         }
     ],
-    "redirects": [
-        {
-            "source": "/(.*)",
-            "has": [
-                {
-                    "type": "host",
-                    "value": "www.pixkee.com"
-                }
-            ],
-            "destination": "https://pixkee.com/$1",
-            "permanent": true
-        }
-    ],
     "headers": [
         {
             "source": "/(.*)",
