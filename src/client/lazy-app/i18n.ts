@@ -153,6 +153,17 @@ export const translations = {
             hoursAgo: 'hours ago',
             reply: 'Reply',
             replyPlaceholder: 'Write a reply...',
+        },
+        snack: {
+            settingsCopied: 'Settings copied across',
+            leftSaved: 'Left side settings saved',
+            rightSaved: 'Right side settings saved',
+            leftImported: 'Left side settings imported',
+            rightImported: 'Right side settings imported',
+            undo: 'UNDO',
+            dismiss: 'DISMISS',
+            sourceDecodingError: 'Source decoding error:',
+            preprocessingError: 'Preprocessing error:',
         }
     },
     zh: {
@@ -309,6 +320,17 @@ export const translations = {
             hoursAgo: '小时前',
             reply: '回复',
             replyPlaceholder: '写下您的回复...',
+        },
+        snack: {
+            settingsCopied: '设置已复制',
+            leftSaved: '左侧设置已保存',
+            rightSaved: '右侧设置已保存',
+            leftImported: '左侧设置已导入',
+            rightImported: '右侧设置已导入',
+            undo: '撤销',
+            dismiss: '忽略',
+            sourceDecodingError: '源文件解码错误:',
+            preprocessingError: '预处理错误:',
         }
     }
 };
