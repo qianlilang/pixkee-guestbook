@@ -64,17 +64,40 @@ export default class App extends Component<Props, State> {
     // Initialize Language
     let lang: Language = 'en';
     if (typeof window !== 'undefined') {
-      const isZhPath = window.location.pathname === '/zh';
-      if (isZhPath) {
-        lang = 'zh';
-      } else if (window.location.pathname === '/' || window.location.pathname === '') {
-        if (navigator.language.startsWith('zh')) {
+      const path = window.location.pathname;
+      if (path === '/zh') lang = 'zh';
+      else if (path === '/ja') lang = 'ja';
+      else if (path === '/ko') lang = 'ko';
+      else if (path === '/es') lang = 'es';
+      else if (path === '/de') lang = 'de';
+      else if (path === '/fr') lang = 'fr';
+      else if (path === '/' || path === '') {
+        const navLang = navigator.language.split('-')[0];
+        if (navLang === 'zh') {
           lang = 'zh';
           window.history.replaceState({}, '', '/zh');
+        } else if (navLang === 'ja') {
+          lang = 'ja';
+          window.history.replaceState({}, '', '/ja');
+        } else if (navLang === 'ko') {
+          lang = 'ko';
+          window.history.replaceState({}, '', '/ko');
+        } else if (navLang === 'es') {
+          lang = 'es';
+          window.history.replaceState({}, '', '/es');
+        } else if (navLang === 'de') {
+          lang = 'de';
+          window.history.replaceState({}, '', '/de');
+        } else if (navLang === 'fr') {
+          lang = 'fr';
+          window.history.replaceState({}, '', '/fr');
         }
       }
     }
     this.state.lang = lang;
+    if (typeof document !== 'undefined') {
+      document.title = translations[lang].pageTitle;
+    }
 
     this.state.isFeedbackOpen = location.pathname === ROUTE_FEEDBACK;
     if (this.state.isFeedbackOpen) this.loadFeedback();
@@ -217,10 +240,11 @@ export default class App extends Component<Props, State> {
 
   private setLang = (lang: Language) => {
     this.setState({ lang });
-    if (lang === 'zh') {
-      window.history.pushState({}, '', '/zh');
-    } else {
+    document.title = translations[lang].pageTitle;
+    if (lang === 'en') {
       window.history.pushState({}, '', '/');
+    } else {
+      window.history.pushState({}, '', `/${lang}`);
     }
   }
 

@@ -1,5 +1,6 @@
 export const translations = {
     en: {
+        pageTitle: 'Pixkee: Free compress images online, fast & light',
         options: {
             edit: 'Edit',
             resize: 'Resize',
@@ -178,6 +179,7 @@ export const translations = {
         }
     },
     zh: {
+        pageTitle: 'Pixkee: 免费在线压缩图片，快速且轻量',
         options: {
             edit: '编辑',
             resize: '调整大小',
@@ -356,6 +358,7 @@ export const translations = {
         }
     },
     ja: {
+        pageTitle: 'Pixkee: 無料で画像をオンライン圧縮、高速＆軽量',
         options: {
             edit: '編集',
             resize: 'サイズ変更',
@@ -534,6 +537,7 @@ export const translations = {
         }
     },
     ko: {
+        pageTitle: 'Pixkee: 무료 온라인 이미지 압축, 빠르고 가벼움',
         options: {
             edit: '편집',
             resize: '크기 조정',
@@ -712,6 +716,7 @@ export const translations = {
         }
     },
     es: {
+        pageTitle: 'Pixkee: Comprimir imágenes online gratis, rápido y ligero',
         options: {
             edit: 'Editar',
             resize: 'Redimensionar',
@@ -890,6 +895,7 @@ export const translations = {
         }
     },
     de: {
+        pageTitle: 'Pixkee: Kostenlos Bilder online komprimieren, schnell & leicht',
         options: {
             edit: 'Bearbeiten',
             resize: 'Größe ändern',
@@ -1068,6 +1074,7 @@ export const translations = {
         }
     },
     fr: {
+        pageTitle: 'Pixkee: Compressez des images en ligne gratuitement, rapide et léger',
         options: {
             edit: 'Éditer',
             resize: 'Redimensionner',
