@@ -27,7 +27,7 @@ interface Props { }
 const Index: FunctionalComponent<Props> = () => (
   <html lang="en">
     <head>
-      <title>Pixkee: Fast & Light</title>
+      <title>Pixkee: Free compress images online, fast & light</title>
       <meta
         name="description"
         content="Pixkee is the ultimate image optimizer that allows you to compress and compare images with different codecs in your browser."
