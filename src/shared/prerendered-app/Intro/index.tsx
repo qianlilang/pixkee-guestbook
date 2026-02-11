@@ -2,7 +2,7 @@ import type { FileDropEvent } from 'file-drop-element';
 import type SnackBarElement from 'shared/custom-els/snack-bar';
 import type { SnackOptions } from 'shared/custom-els/snack-bar';
 
-import { h, Component } from 'preact';
+import { h, Component, createRef } from 'preact';
 
 import { linkRef } from 'shared/prerendered-app/util';
 import '../../custom-els/loading-spinner';
@@ -388,6 +388,22 @@ export default class Intro extends Component<Props, State> {
     };
   }
 
+  private langContainerRef = createRef<HTMLDivElement>();
+
+  componentDidMount() {
+    document.addEventListener('mousedown', this.handleClickOutside);
+  }
+
+  componentWillUnmount() {
+    document.removeEventListener('mousedown', this.handleClickOutside);
+  }
+
+  private handleClickOutside = (event: MouseEvent) => {
+    if (this.state.isLangMenuOpen && this.langContainerRef.current && !this.langContainerRef.current.contains(event.target as Node)) {
+      this.setState({ isLangMenuOpen: false });
+    }
+  }
+
   private toggleLang = () => {
     this.setState(prev => ({ isLangMenuOpen: !prev.isLangMenuOpen }));
   }
@@ -472,7 +488,7 @@ export default class Intro extends Component<Props, State> {
             </div>
             <nav class={style.headerNav}>
               {/* Language Switcher */}
-              <div class={style.langContainer}>
+              <div class={style.langContainer} ref={this.langContainerRef}>
                 <button class={style.langButton} onClick={this.toggleLang}>
                   <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                     <circle cx="12" cy="12" r="10"></circle>
