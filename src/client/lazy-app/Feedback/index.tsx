@@ -14,11 +14,40 @@ interface FeedbackProps {
 }
 
 const STORAGE_KEY = 'pixkee-comments';
+const PAGE_SIZE = 20;
 
 export default function Feedback({ onBack, lang }: FeedbackProps) {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
+    const [currentPage, setCurrentPage] = useState(1);
     const t = translations[lang].feedback;
+
+    const totalPages = Math.max(1, Math.ceil(comments.length / PAGE_SIZE));
+    const paginatedComments = comments.slice((currentPage - 1) * PAGE_SIZE, currentPage * PAGE_SIZE);
+
+    const goToPage = (page: number) => {
+        const p = Math.max(1, Math.min(page, totalPages));
+        setCurrentPage(p);
+        // scroll to top of comments section
+        const section = document.querySelector('.' + style.commentsSection);
+        if (section) section.scrollIntoView({ behavior: 'smooth' });
+    };
+
+    const getPageNumbers = () => {
+        const pages: (number | string)[] = [];
+        if (totalPages <= 7) {
+            for (let i = 1; i <= totalPages; i++) pages.push(i);
+        } else {
+            pages.push(1);
+            if (currentPage > 3) pages.push('...');
+            const start = Math.max(2, currentPage - 1);
+            const end = Math.min(totalPages - 1, currentPage + 1);
+            for (let i = start; i <= end; i++) pages.push(i);
+            if (currentPage < totalPages - 2) pages.push('...');
+            pages.push(totalPages);
+        }
+        return pages;
+    };
 
     useEffect(() => {
         loadComments();
@@ -263,12 +292,45 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
                     {loading ? (
                         <div class={style.loading}>{t.loading}</div>
                     ) : (
-                        <CommentList
-                            comments={comments}
-                            onLike={handleLike}
-                            onReply={handleReply}
-                            lang={lang}
-                        />
+                        <div>
+                            <CommentList
+                                comments={paginatedComments}
+                                onLike={handleLike}
+                                onReply={handleReply}
+                                lang={lang}
+                            />
+                            {totalPages > 1 && (
+                                <div class={style.pagination}>
+                                    <button
+                                        class={style.pageButton}
+                                        onClick={() => goToPage(currentPage - 1)}
+                                        disabled={currentPage === 1}
+                                    >
+                                        ‹
+                                    </button>
+                                    {getPageNumbers().map((p, i) =>
+                                        typeof p === 'string' ? (
+                                            <span key={`ellipsis-${i}`} class={style.pageEllipsis}>…</span>
+                                        ) : (
+                                            <button
+                                                key={p}
+                                                class={p === currentPage ? style.pageButtonActive : style.pageButton}
+                                                onClick={() => goToPage(p)}
+                                            >
+                                                {p}
+                                            </button>
+                                        )
+                                    )}
+                                    <button
+                                        class={style.pageButton}
+                                        onClick={() => goToPage(currentPage + 1)}
+                                        disabled={currentPage === totalPages}
+                                    >
+                                        ›
+                                    </button>
+                                </div>
+                            )}
+                        </div>
                     )}
                 </div>
             </div>
