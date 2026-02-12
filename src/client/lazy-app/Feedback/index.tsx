@@ -13,13 +13,26 @@ interface FeedbackProps {
     lang: Language;
 }
 
-const STORAGE_KEY = 'pixkee-comments';
 const PAGE_SIZE = 20;
+const LIKES_STORAGE_KEY = 'pixkee-likes';
+
+// 从 localStorage 读取点赞数据
+function getLocalLikes(): Record<string, number> {
+    try {
+        const raw = localStorage.getItem(LIKES_STORAGE_KEY);
+        return raw ? JSON.parse(raw) : {};
+    } catch { return {}; }
+}
+
+function saveLocalLikes(likes: Record<string, number>) {
+    localStorage.setItem(LIKES_STORAGE_KEY, JSON.stringify(likes));
+}
 
 export default function Feedback({ onBack, lang }: FeedbackProps) {
     const [comments, setComments] = useState<Comment[]>([]);
     const [loading, setLoading] = useState(true);
     const [currentPage, setCurrentPage] = useState(1);
+    const [localLikes, setLocalLikes] = useState<Record<string, number>>(getLocalLikes());
     const t = translations[lang].feedback;
 
     const totalPages = Math.max(1, Math.ceil(comments.length / PAGE_SIZE));
@@ -28,7 +41,6 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
     const goToPage = (page: number) => {
         const p = Math.max(1, Math.min(page, totalPages));
         setCurrentPage(p);
-        // scroll to top of comments section
         const section = document.querySelector('.' + style.commentsSection);
         if (section) section.scrollIntoView({ behavior: 'smooth' });
     };
@@ -60,22 +72,16 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
                 .select('*')
                 .order('timestamp', { ascending: false });
 
-            if (error) {
-                throw error;
-            }
+            if (error) throw error;
 
             if (data) {
-                // Ensure replies is parsed if it comes as string, though Supabase handles JSON types well.
-                // Our schema has replies as jsonb, so it should be fine.
-                // We might need to map data to match Comment interface if field names differ, 
-                // but we designed the schema to match.
-                // Wait, our schema uses 'id' as bigint (generated), but frontend uses string. 
-                // JS handles bigints sometimes weirdly if not careful, but usually toString() works.
-                // Let's cast or map standardly.
+                const savedLikes = getLocalLikes();
                 const mapped: Comment[] = data.map((item: any) => ({
                     ...item,
-                    id: item.id.toString(), // Ensure ID is string
-                    // Ensure replies defaults to [] if null
+                    id: item.id.toString(),
+                    // 合并 DB 的 likes 和本地的额外 likes
+                    likes: (item.likes || 0) + (savedLikes[item.id.toString()] || 0),
+                    isLiked: !!savedLikes[item.id.toString()],
                     replies: item.replies || []
                 }));
                 setComments(mapped);
@@ -87,21 +93,7 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
         }
     };
 
-    const saveComments = async (newComments: Comment[]) => {
-        // We don't save the whole list anymore. We insert specific items.
-        // But the previous architecture passed the WHOLE list to this function.
-        // We need to change the logic of handlePost/Reply/Like to call specfic Supabase actions.
-        // HOWEVER, to be minimally invasive:
-        // 'newComments' contains the latest state. 
-        // 1. handlePost adds a new item at top. We should just insert that ONE item.
-        // 2. handleLike/Reply updates an existing item. We should update that ONE item.
-
-        // Refactoring handlePost/Like/Reply to call separate functions is better.
-        // But to keep signature, we might need to inspect what changed? No that's hard.
-        // Let's deprecate saveComments and make specific functions.
-    };
-
-    // New helper to add comment
+    // 插入新评论到数据库
     const addComment = async (comment: Comment) => {
         const { error } = await supabase.from('pixkee_comments').insert({
             content: comment.content,
@@ -110,22 +102,10 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
             likes: 0,
             replies: []
         });
-        if (!error) loadComments(); // Reload to get ID and correct state
-    };
-
-    // New helper to update comment (for likes/replies)
-    const updateComment = async (comment: Comment) => {
-        const { error } = await supabase
-            .from('pixkee_comments')
-            .update({
-                likes: comment.likes,
-                replies: comment.replies
-            })
-            .eq('id', comment.id); // Note: comment.id is string, DB is bigint. Postgres handles '123' -> 123 fine.
-
-        if (error) console.error('Update failed', error);
-        // We might not need to reload for likes if local state is optimistic, 
-        // but for consistency let's relying on loadComments or just keep local state.
+        if (!error) {
+            await loadComments();
+            setCurrentPage(1); // 跳回第一页看新评论
+        }
     };
 
     const handlePost = async (content: string, image: File | null) => {
@@ -139,7 +119,7 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
         }
 
         const newComment: Comment = {
-            id: 'validating...', // Temp ID
+            id: 'temp',
             content,
             image: imageBase64,
             timestamp: Date.now(),
@@ -147,78 +127,37 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
             replies: []
         };
 
-        // Optimistic UI update (optional, but good)
-        // setComments([newComment, ...comments]); 
-
         await addComment(newComment);
     };
 
+    // 点赞：使用 localStorage 持久化（因为 Supabase RLS 阻止 UPDATE）
     const handleLike = async (commentId: string) => {
-        // Find and update local state first (Optimistic)
-        const comment = comments.find(c => c.id === commentId);
-        // Deep search needed? The previous logic used recursion.
+        const saved = getLocalLikes();
+        if (saved[commentId]) return; // 已经点过赞了
 
-        // Let's look at the previous logic for recursion.
-        const updateRecursive = (list: Comment[]): { updatedList: Comment[], target?: Comment } => {
-            let target: Comment | undefined;
-            const updatedList = list.map(c => {
-                if (c.id === commentId) {
-                    const updated = { ...c, likes: c.likes + 1, isLiked: true };
-                    target = updated;
-                    return updated;
-                }
-                if (c.replies) {
-                    const res = updateRecursive(c.replies);
-                    if (res.target) target = res.target;
-                    return { ...c, replies: res.updatedList };
-                }
-                return c;
-            });
-            return { updatedList, target };
-        };
+        // 记录到 localStorage
+        saved[commentId] = 1;
+        saveLocalLikes(saved);
+        setLocalLikes({ ...saved });
 
-        const { updatedList, target } = updateRecursive(comments);
-        setComments(updatedList);
-
-        if (target) {
-            // We need to update the top-level comment (because our DB structure might store replies nested in JSONB)
-            // Wait, if it's a reply nested deep, do we update the ROOT comment's JSON or the reply itself?
-            // Our DB schema `pixkee_comments` is flat for top-level. 
-            // If replies are just JSONB in the parent, we must update the PARENT.
-            // This is tricky if we don't know the parent ID of a nested reply easily.
-
-            // SIMPLIFICATION FOR MVP: 
-            // If we are liking a Top-Level comment -> Update Row directly.
-            // If we are liking a Reply -> We must update the Parent Row's `replies` JSON.
-
-            // To properly handle this without complex parent-tracking, 
-            // maybe we should just reload validation?
-            // Or let's just attempt to update the root comment if found.
-
-            // Actually, finding the 'root' of the modified comment is safer.
-            const findRoot = (list: Comment[]): Comment | undefined => {
-                for (const c of list) {
-                    if (c.id === commentId) return c; // It is root
-                    // Check children
-                    if (JSON.stringify(c).includes(commentId)) return c; // Dirty check but works for "is this inside"
-                }
-            };
-
-            // Correct approach: updating the root comment that contains the change
-            // Since `updatedList` already has the modified structure, 
-            // we find which root element changed and push that whole root element params.
-
-            const root = updatedList.find(c =>
-                c.id === commentId || JSON.stringify(c.replies).includes(commentId)
-            );
-
-            if (root) {
-                await updateComment(root);
-            }
-        }
+        // 更新本地 UI 状态
+        setComments(prev => prev.map(c =>
+            c.id === commentId
+                ? { ...c, likes: c.likes + 1, isLiked: true }
+                : c
+        ));
     };
 
+    // 回复：作为新评论 INSERT 到 DB，内容带有引用格式
     const handleReply = async (commentId: string, content: string, image: File | null) => {
+        // 找到被回复的评论内容，截取前 30 字作为引用
+        const parentComment = comments.find(c => c.id === commentId);
+        const parentPreview = parentComment
+            ? parentComment.content.slice(0, 30) + (parentComment.content.length > 30 ? '...' : '')
+            : '';
+
+        const replyContent = `💬 Re: "${parentPreview}"\n\n${content}`;
+
         let imageBase64: string | undefined;
         if (image) {
             imageBase64 = await new Promise((resolve) => {
@@ -228,36 +167,17 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
             });
         }
 
-        const reply: Comment = {
-            id: Date.now().toString(),
-            content,
+        const { error } = await supabase.from('pixkee_comments').insert({
+            content: replyContent,
             image: imageBase64,
             timestamp: Date.now(),
             likes: 0,
             replies: []
-        };
+        });
 
-        const updateRecursive = (list: Comment[]): Comment[] => {
-            return list.map(c => {
-                if (c.id === commentId) {
-                    return { ...c, replies: [...(c.replies || []), reply] };
-                }
-                if (c.replies) {
-                    return { ...c, replies: updateRecursive(c.replies) };
-                }
-                return c;
-            });
-        };
-
-        const updated = updateRecursive(comments);
-        setComments(updated); // Optimistic
-
-        // Determine root parent to update DB
-        const root = updated.find(c =>
-            c.id === commentId || JSON.stringify(c.replies).includes(commentId)
-        );
-        if (root) {
-            await updateComment(root);
+        if (!error) {
+            await loadComments();
+            setCurrentPage(1);
         }
     };
 
@@ -337,3 +257,4 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
         </div>
     );
 }
+
