@@ -65,25 +65,22 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
         loadComments();
     }, []);
 
-    // Sort by month (descending), then by likes (descending) within the same month
+    // Sort by day (descending), then by likes (descending) within the same day
     const sortComments = (comments: Comment[]): Comment[] => {
         return comments.sort((a, b) => {
             const dateA = new Date(a.timestamp);
             const dateB = new Date(b.timestamp);
 
-            // Compare Year-Month
-            const yearA = dateA.getFullYear();
-            const yearB = dateB.getFullYear();
-            if (yearA !== yearB) return yearB - yearA;
+            // Compare Date (Year-Month-Day)
+            const dayA = new Date(dateA.getFullYear(), dateA.getMonth(), dateA.getDate()).getTime();
+            const dayB = new Date(dateB.getFullYear(), dateB.getMonth(), dateB.getDate()).getTime();
 
-            const monthA = dateA.getMonth();
-            const monthB = dateB.getMonth();
-            if (monthA !== monthB) return monthB - monthA;
+            if (dayA !== dayB) return dayB - dayA;
 
-            // Same Year-Month: Compare Likes
+            // Same Day: Compare Likes
             if (a.likes !== b.likes) return b.likes - a.likes;
 
-            // Same Month & Same Likes: Fallback to timestamp descending (newest first)
+            // Same Day & Same Likes: Fallback to timestamp descending (newest first)
             return b.timestamp - a.timestamp;
         });
     };
