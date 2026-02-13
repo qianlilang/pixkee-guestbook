@@ -65,13 +65,27 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
         loadComments();
     }, []);
 
-    // Fisher-Yates shuffle algorithm
-    const shuffleArray = (array: any[]) => {
-        for (let i = array.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [array[i], array[j]] = [array[j], array[i]];
-        }
-        return array;
+    // Sort by month (descending), then by likes (descending) within the same month
+    const sortComments = (comments: Comment[]): Comment[] => {
+        return comments.sort((a, b) => {
+            const dateA = new Date(a.timestamp);
+            const dateB = new Date(b.timestamp);
+
+            // Compare Year-Month
+            const yearA = dateA.getFullYear();
+            const yearB = dateB.getFullYear();
+            if (yearA !== yearB) return yearB - yearA;
+
+            const monthA = dateA.getMonth();
+            const monthB = dateB.getMonth();
+            if (monthA !== monthB) return monthB - monthA;
+
+            // Same Year-Month: Compare Likes
+            if (a.likes !== b.likes) return b.likes - a.likes;
+
+            // Same Month & Same Likes: Fallback to timestamp descending (newest first)
+            return b.timestamp - a.timestamp;
+        });
     };
 
     const loadComments = async () => {
@@ -79,9 +93,8 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
             const { data, error } = await supabase
                 .from('pixkee_comments')
                 .select('*')
-                // Remove ordering by timestamp to allow random mixing, or keep to fetch latest then shuffle
-                // If we want random mix of ALL comments, order doesn't matter much on fetch unless limiting
-                .order('timestamp', { ascending: false });
+            // Remove ordering by timestamp to allow custom sorting below
+            // .order('timestamp', { ascending: false }); // We do custom sort anyway
 
             if (error) throw error;
 
@@ -95,10 +108,10 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
                     isLiked: !!savedLikes[item.id.toString()],
                     replies: item.replies || []
                 }));
-                
-                // Shuffle the comments to mix languages
-                mapped = shuffleArray(mapped);
-                
+
+                // Sort the comments: Newest Month -> Most Likes -> Newest Time
+                mapped = sortComments(mapped);
+
                 setComments(mapped);
             }
         } catch (e) {
