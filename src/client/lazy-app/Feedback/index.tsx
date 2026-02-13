@@ -65,18 +65,29 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
         loadComments();
     }, []);
 
+    // Fisher-Yates shuffle algorithm
+    const shuffleArray = (array: any[]) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    };
+
     const loadComments = async () => {
         try {
             const { data, error } = await supabase
                 .from('pixkee_comments')
                 .select('*')
+                // Remove ordering by timestamp to allow random mixing, or keep to fetch latest then shuffle
+                // If we want random mix of ALL comments, order doesn't matter much on fetch unless limiting
                 .order('timestamp', { ascending: false });
 
             if (error) throw error;
 
             if (data) {
                 const savedLikes = getLocalLikes();
-                const mapped: Comment[] = data.map((item: any) => ({
+                let mapped: Comment[] = data.map((item: any) => ({
                     ...item,
                     id: item.id.toString(),
                     // 合并 DB 的 likes 和本地的额外 likes
@@ -84,6 +95,10 @@ export default function Feedback({ onBack, lang }: FeedbackProps) {
                     isLiked: !!savedLikes[item.id.toString()],
                     replies: item.replies || []
                 }));
+                
+                // Shuffle the comments to mix languages
+                mapped = shuffleArray(mapped);
+                
                 setComments(mapped);
             }
         } catch (e) {
